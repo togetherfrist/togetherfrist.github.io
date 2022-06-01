@@ -6,23 +6,87 @@
         <link rel="stylesheet" href="public/build/mt.css">
         <link rel="stylesheet" href="public/build/tailwind/index.css">
 
+        <style type="text/css">
+            html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{margin:0;padding:0;border:0}body{font-family:Helvetica,arial,freesans,clean,sans-serif;font-size:14px;line-height:1.6;color:#333;background-color:#fff;padding:20px;max-width:960px;margin:0 auto}body>*:first-child{margin-top:0 !important}body>*:last-child{margin-bottom:0 !important}p,blockquote,ul,ol,dl,table,pre{margin:15px 0}h1,h2,h3,h4,h5,h6{margin:20px 0 10px;padding:0;font-weight:bold;-webkit-font-smoothing:antialiased}h1 tt,h1 code,h2 tt,h2 code,h3 tt,h3 code,h4 tt,h4 code,h5 tt,h5 code,h6 tt,h6 code{font-size:inherit}h1{font-size:28px;color:#000}h2{font-size:24px;border-bottom:1px solid #ccc;color:#000}h3{font-size:18px}h4{font-size:16px}h5{font-size:14px}h6{color:#777;font-size:14px}body>h2:first-child,body>h1:first-child,body>h1:first-child+h2,body>h3:first-child,body>h4:first-child,body>h5:first-child,body>h6:first-child{margin-top:0;padding-top:0}a:first-child h1,a:first-child h2,a:first-child h3,a:first-child h4,a:first-child h5,a:first-child h6{margin-top:0;padding-top:0}h1+p,h2+p,h3+p,h4+p,h5+p,h6+p{margin-top:10px}a{color:#4183c4;text-decoration:none}a:hover{text-decoration:underline}ul,ol{padding-left:30px}ul li>:first-child,ol li>:first-child,ul li ul:first-of-type,ol li ol:first-of-type,ul li ol:first-of-type,ol li ul:first-of-type{margin-top:0}ul ul,ul ol,ol ol,ol ul{margin-bottom:0}dl{padding:0}dl dt{font-size:14px;font-weight:bold;font-style:italic;padding:0;margin:15px 0 5px}dl dt:first-child{padding:0}dl dt>:first-child{margin-top:0}dl dt>:last-child{margin-bottom:0}dl dd{margin:0 0 15px;padding:0 15px}dl dd>:first-child{margin-top:0}dl dd>:last-child{margin-bottom:0}pre,code,tt{font-size:12px;font-family:Consolas,"Liberation Mono",Courier,monospace}code,tt{margin:0;padding:0;white-space:nowrap;border:1px solid #eaeaea;background-color:#f8f8f8;border-radius:3px}pre>code{margin:0;padding:0;white-space:pre;border:0;background:transparent}pre{background-color:#f8f8f8;border:1px solid #ccc;font-size:13px;line-height:19px;overflow:auto;padding:6px 10px;border-radius:3px}pre code,pre tt{background-color:transparent;border:0}blockquote{border-left:4px solid #DDD;padding:0 15px;color:#777}blockquote>:first-child{margin-top:0}blockquote>:last-child{margin-bottom:0}hr{clear:both;margin:15px 0;height:0;overflow:hidden;border:0;background:transparent;border-bottom:4px solid #ddd;padding:0}table th{font-weight:bold}table th,table td{border:1px solid #ccc;padding:6px 13px}table tr{border-top:1px solid #ccc;background-color:#fff}table tr:nth-child(2n){background-color:#f8f8f8}img{max-width:100%}
+        </style>
+
         </head>
     <body class="container bg-white-500">
 
-        <div id="container" style="width:1280px" float="left">
+        <div id="container" style="width:1150px" float="left">
         
             <div id="header" style="background-color:#ffffff;" class="text-center">
-            <h1 style="margin-bottom:0;">groophite 文档-事件</h1></div>
+            <p style="margin-bottom:0;">groophite 文档-事件</p></div>
             
-            <div id="menu" style="background-color:#ffffff;height:200px;width:100px;float:left;" class="overflow_auto">
+            <div id="menu" style="background-color:#ffffff;height:200px;width:200px;float:left;" class="overflow_auto">
             <b><a class="text-center text-2xl text-black font-bold" href="index.html">菜单</a></b><br>
             <a class="text-center text-2xl text-black" href="模组配方.html">模组配方</a><br>
             <a class="text-center text-2xl text-black" href="事件.html">事件</a><br>
             待定</div>
             
-            <div id="content" style="background-color:#ffffff;height:200px;width:400px;float:left;">
-            <a class=" text-center font-bold"><img src="images/事件.png" alt="如果你看不到图片，那你就会看到这行字" /></a></div>
+            <div id="content" style="background-color:#ffffff;height:200px;width:800px;float:left;">
             
+<h1>事件系统</h1>
+<p>事件系统可以做什么？当某件事发生时，它就会执行你想要让它执行的操作，这就是事件系统的作用。事件系统可以来做许多事，比如修改方块、怪物的掉落物，在玩家第一次进世界时给玩家初始物品，或是记录玩家的死亡点等。</p>
+<p>这里以修改方块掉落物为例，把橡木的掉落物改为橡木木板。</p>
+<h3>思考和写脚本的过程</h3>
+<h5>1.开头部分</h5>
+<p>依然是先写下</p>
+<pre><code class="groovy">@BaseScript GlobalUtils _  
+import groovy.transform.BaseScript
+</code></pre>
+<p>这段脚本让我们可以用 itemstack(String)来表示物品，十分常用。</p>
+<p>接着，我们另起一行输入 <code>G_Event</code> ，就能看到有许多事件可以选择
+![[Pasted image 20220528223710.png]]</p>
+<p>因为不知道事件具体名字，于是就试着在 G_ 后加上 drop ，成功发现了需要用的事件
+![[Pasted image 20220528224215.png]]</p>
+<p>按下 Tab ，加上 .sub{}</p>
+<p>这样，我们就可以订阅事件了</p>
+<pre><code class="groovy">@BaseScript GlobalUtils _  
+import com.draming.groophite.api.events.G_MCBlockHarvestDropsEvent  
+import groovy.transform.BaseScript  
+G_MCBlockHarvestDropsEvent.sub{  
+    //这里写你想要让它执行的操作
+}
+</code></pre>
+<h5>2.中间部分</h5>
+<p>我们可以用 it 来指代这个事件，例如 it.getBlock() 就是这个事件的方块（在这里就是被挖掉的那个方块）。想要判断它是不是橡木，可以判断它的 id 是否和橡木 id 一样，那我们只要获取它的 id 就能判断了。在 it.getBlock(). 中并没有 id ，但我们可以在 it.getBlock().definition. 里找到它。如果你不知道橡木的 id 是什么，你可以用 println() 方法把它打印在日志里</p>
+<pre><code class="groovy">G_MCBlockHarvestDropsEvent.sub{  
+    println(it.getBlock().definition.id)
+}
+</code></pre>
+<p>然后我们就能在.minecraft/versions/版本名/logs/latest.log 中看到输出
+<code>[org.codehaus.groovy.runtime.DefaultGroovyMethods:println:854]: minecraft:log</code></p>
+<p>看到橡木的 id 是 minecraft:log 后，我们就可以用 if(条件){结果} 来改它的掉落物了。但这里要注意，橡木、云杉木、白桦木、丛林木的 id 都是一样的，所以还要判断它的 metadata（数据值）。 </p>
+<pre><code class="groovy">if(it.getBlock().definition.id == "minecraft:log"){  //这种写法会把橡木、云杉木、白桦木、丛林木的掉落物都改为橡木木板
+    it.setDrops([itemStack(planks).weight(1)])
+}
+if(it.getBlock().definition.id == "minecraft:log" &amp;&amp; it.getBlock().meta == 0){ // &amp;&amp; 意思是“与” ，这样写只会把橡木的掉落物改为橡木木板
+    it.setDrops([itemStack(planks).weight(1)])  
+}
+</code></pre>
+<p>因为.setdrops()要求填入 List ，所以用中括号括起来。.weight(1) 即概率为 1（100%）。</p>
+<h3>完整代码及扩展</h3>
+<pre><code class="groovy">@BaseScript GlobalUtils _  
+import com.draming.groophite.api.events.G_MCBlockHarvestDropsEvent  
+import groovy.transform.BaseScript  
+G_MCBlockHarvestDropsEvent.sub{  
+    if(it.getWorld().remote) return //保证仅在服务端执行  
+    if(it.isPlayer()){  //如果是玩家挖掘  
+        if(it.isSilkTouch()){  
+            return  
+        } //跳过精准采集的情况  
+        println(it.getBlock().definition.id) //测试时可以写这个来检查，也可以删去。  
+        if(it.getBlock().definition.id == "minecraft:log" &amp;&amp; it.getBlock().meta == 0){ //把橡木掉落物改为橡木木板  
+            it.setDrops([itemStack(planks).weight(1)])  
+        }  
+        else if(it.getBlock().definition.id == "minecraft:log" &amp;&amp; it.getBlock().meta == 2){ //把白桦木掉落物改为 4 个白桦木板  
+            it.setDrops([itemStack(planks).withDamage(2).amount(4).weight(1)])  
+        }  
+    }  
+}
+</code></pre>
+
             <div id="footer" style="background-color:#FFA500;clear:both;text-align:center;">
             </div>
             
