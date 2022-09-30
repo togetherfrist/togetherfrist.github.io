@@ -102,8 +102,9 @@ public static void addRecipe(String name, IItemStack output, IIngredient input, 
 <p>意味着我们可以用 <code>ZenCrudeDryingRack.addRecipe(...)</code> 这个语句来添加配方，其中 <code>ZenCrudeDryingRack</code> 是刚刚看到这段话所在的文件的名字，<code>addRecipe(...)</code> 是 <code>public static void</code> 后的句子。</p>
 <h4>2.写脚本</h4>
 <p>先在开头写下</p>
-<pre><code class="groovy">@BaseScript GlobalUtils _  
+<pre><code class="groovy">import gens.Minecraft
 import groovy.transform.BaseScript
+@BaseScript GlobalUtils _
 </code></pre>
 <p>（写完之后会有一个警告，但不用理它）</p>
 <p>换行，再输入 <code>ZenCrudeDryingRack.addRecipe()</code> 
@@ -123,28 +124,30 @@ import groovy.transform.BaseScript
 <tr><td>boolean inherited</td><td>true 或 false (是否继承)</td><td>更高等级的晾干架是否会有这个配方</td></tr>
 </tbody>
 </table>
-<p>其中，IItemStack 类型的物品可以用 itemStack(String) 来获取，其中 String 一般为物品英文 id 中第一个冒号后的内容，比如 itemStack(apple) 就表示 minecraft:apple 这个物品。另外，你可以在 GlobalUtils.groovy 看到各个字符串对应的物品。</p>
+<p>其中，IItemStack 类型的物品可以用 itemStack(String) 来获取。因为在提前准备好的 gens\Minecraft.groovy 中已经给每个物品 id 写了一个对应的变量，所以我们可以用<code> 模组名.物品名 </code>来代替物品 id。例如： itemStack(Minecraft.apple) 就表示 minecraft:apple 这个物品。另外，你可以在 gens 文件夹中的文件看到各个字符串对应的物品。</p>
 <p>由于 IItemStack,IOreDictEntry(矿词),ILiquidStack(流体)等都是 IIngredient 的一种，所以它们都可以当做 IIngredient 来使用。</p>
 <h4>3.完整写出脚本：</h4>
-<pre><code class="groovy">@BaseScript GlobalUtils _  
-import com.codetaylor.mc.pyrotech.modules.tech.basic.plugin.crafttweaker.ZenCrudeDryingRack
+<pre><code class="groovy">import com.codetaylor.mc.pyrotech.modules.tech.basic.plugin.crafttweaker.ZenCrudeDryingRack
+import gens.Minecraft
 import groovy.transform.BaseScript
+@BaseScript GlobalUtils _  
 
-ZenCrudeDryingRack.addRecipe("test1",itemStack(grass),itemStack(dirt),60,false)
+ZenCrudeDryingRack.addRecipe("test1",itemStack(Minecraft.grass),itemStack(Minecraft.dirt),60,false)
 </code></pre>
 <p>这样，我们就为简陋的晾干架添加了一个配方，名为 "test1"，输出的物品为草方块，放入的物品为泥土，干燥时间为 3 秒。</p>
 <h4>一些拓展</h4>
 <p>1.你可以在同一个脚本添加多个配方，但要注意配方名字不能重复，即使放到不同的 groovy 脚本里也不能重复。</p>
 <p>2.当你添加的合成表较多时，可以通过定义变量来简化你的脚本，但要注意变量名不能和 GlobalUtils.groovy 中的变量名重复，例：</p>
-<pre><code class="groovy">@BaseScript GlobalUtils _  
-import groovy.transform.BaseScript  
+<pre><code class="groovy"> import groovy.transform.BaseScript  
 import com.codetaylor.mc.pyrotech.modules.tech.basic.plugin.crafttweaker.ZenCrudeDryingRack  
 import com.codetaylor.mc.pyrotech.modules.tech.basic.plugin.crafttweaker.ZenDryingRack 
+import gens.Minecraft
+@BaseScript GlobalUtils _ 
 
-def grass_item = itemStack(grass) //相当于令 grass_item = itemStack(grass)
-def dirt_item = itemStack(dirt)  
-def apple_item = itemStack(apple)  
-def golden_apple_item = itemStack(golden_apple)  
+def grass_item = itemStack(Minecraft.grass) //相当于令 grass_item = itemStack(Minecraft.grass)
+def dirt_item = itemStack(Minecraft.dirt)  
+def apple_item = itemStack(Minecraft.apple)  
+def golden_apple_item = itemStack(Minecraft.golden_apple)  
 
 ZenCrudeDryingRack.addRecipe("test2", grass_item,dirt_item,60,false)  
 ZenCrudeDryingRack.addRecipe("test4", grass_item,apple_item,30,true)  
