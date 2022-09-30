@@ -90,8 +90,9 @@ color: rgba(255, 255, 255, var(--tw-text-opacity));
 <h3>思考和写脚本的过程</h3>
 <h5>1.开头部分</h5>
 <p>依然是先写下</p>
-<pre><code class="groovy">@BaseScript GlobalUtils _  
+<pre><code class="groovy">import gens.Minecraft
 import groovy.transform.BaseScript
+@BaseScript GlobalUtils _  
 </code></pre>
 <p>这段脚本让我们可以用 itemstack(String)来表示物品，十分常用。</p>
 <p>接着，我们另起一行输入 <code>G_Event</code> ，就能看到有许多事件可以选择。</p>
@@ -100,9 +101,10 @@ import groovy.transform.BaseScript
 
 <p>按下 Tab ，加上 .sub{}</p>
 <p>这样，我们就可以订阅事件了</p>
-<pre><code class="groovy">@BaseScript GlobalUtils _  
+<pre><code class="groovy">import gens.Minecraft
 import com.draming.groophite.api.events.G_MCBlockHarvestDropsEvent  
 import groovy.transform.BaseScript  
+@BaseScript GlobalUtils _  
 G_MCBlockHarvestDropsEvent.sub{  
     //这里写你想要让它执行的操作
 }
@@ -117,17 +119,18 @@ G_MCBlockHarvestDropsEvent.sub{
 <code>[org.codehaus.groovy.runtime.DefaultGroovyMethods:println:854]: minecraft:log</code></p>
 <p>看到橡木的 id 是 minecraft:log 后，我们就可以用 if(条件){结果} 来改它的掉落物了。但这里要注意，橡木、云杉木、白桦木、丛林木的 id 都是一样的，所以还要判断它的 metadata（数据值）。 </p>
 <pre><code class="groovy">if(it.getBlock().definition.id == "minecraft:log"){  //这种写法会把橡木、云杉木、白桦木、丛林木的掉落物都改为橡木木板
-    it.setDrops([itemStack(planks).weight(1)])
+    it.setDrops([itemStack(Minecraft.planks).weight(1)])
 }
 if(it.getBlock().definition.id == "minecraft:log" &amp;&amp; it.getBlock().meta == 0){ // &amp;&amp; 意思是“与” ，这样写只会把橡木的掉落物改为橡木木板
-    it.setDrops([itemStack(planks).weight(1)])  
+    it.setDrops([itemStack(Minecraft.planks).weight(1)])  
 }
 </code></pre>
 <p>因为.setdrops()要求填入 List ，所以用中括号括起来。.weight(1) 即概率为 1（100%）。</p>
 <h3>完整代码及扩展</h3>
-<pre><code class="groovy">@BaseScript GlobalUtils _  
+<pre><code class="groovy">import gens.Minecraft
 import com.draming.groophite.api.events.G_MCBlockHarvestDropsEvent  
 import groovy.transform.BaseScript  
+@BaseScript GlobalUtils _   
 G_MCBlockHarvestDropsEvent.sub{  
     if(it.getWorld().remote) return //保证仅在服务端执行  
     if(it.isPlayer()){  //如果是玩家挖掘  
@@ -136,10 +139,10 @@ G_MCBlockHarvestDropsEvent.sub{
         } //跳过精准采集的情况  
         println(it.getBlock().definition.id) //测试时可以写这个来检查，也可以删去。  
         if(it.getBlock().definition.id == "minecraft:log" &amp;&amp; it.getBlock().meta == 0){ //把橡木掉落物改为橡木木板  
-            it.setDrops([itemStack(planks).weight(1)])  
+            it.setDrops([itemStack(Minecraft.planks).weight(1)])  
         }  
         else if(it.getBlock().definition.id == "minecraft:log" &amp;&amp; it.getBlock().meta == 2){ //把白桦木掉落物改为 4 个白桦木板  
-            it.setDrops([itemStack(planks).withDamage(2).amount(4).weight(1)])  
+            it.setDrops([itemStack(Minecraft.planks).withDamage(2).amount(4).weight(1)])  
         }  
     }  
 }
