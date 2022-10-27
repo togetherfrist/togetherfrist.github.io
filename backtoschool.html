@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh_cn">
+	<head>
+		<meta charset="utf-8"> 
+		<link rel="stylesheet" href="public/build/mt.css">
+        <link rel="stylesheet" href="public/build/tailwind/index.css">
+		<title>好好好</title> 
+
+		<script>
+		var result = 2
+		var date = new Date
+		var time = 0
+		function suanShi(){
+			var x = Math.floor(Math.random()*89+11)
+			var y = Math.floor(Math.random()*9+1)
+			var z = Math.floor(Math.random()*89+11)
+			document.getElementById("suanshi").innerHTML=x + " × " + y + " + " + z + " = ";
+			result = x*y+z
+			var d1 = Math.floor(Math.random()*11+1)
+			var d2 = Math.floor(Math.random()*11+1)
+			var d3 = Math.floor(Math.random()*11+1)
+			var r1 = Math.floor(Math.random()*4)
+			var dalist = ["daA","daB","daC","daD"]
+			document.getElementById(dalist[r1]).innerHTML=result
+			console.log(dalist[r1])
+			if(r1 == 0){
+				document.getElementById("daB").innerHTML = result + d1
+				document.getElementById("daC").innerHTML = result + d1 + d2
+				document.getElementById("daD").innerHTML = result + d1 + d2 + d3
+			}
+			else if(r1 == 1){
+				document.getElementById("daA").innerHTML = result - d1
+				document.getElementById("daC").innerHTML = result + d2
+				document.getElementById("daD").innerHTML = result + d2 + d3
+			}
+			else if(r1 == 2){
+				document.getElementById("daA").innerHTML = result - d1 - d2
+				document.getElementById("daB").innerHTML = result - d2
+				document.getElementById("daD").innerHTML = result + d3
+			}
+			else if(r1 == 3){
+				document.getElementById("daA").innerHTML = result - d1 - d2 - d3
+				document.getElementById("daB").innerHTML = result - d2 - d3
+				document.getElementById("daC").innerHTML = result - d3
+			}
+			date = new Date
+			time = date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds() + date.getMilliseconds() * 0.001
+			console.log(time)
+		}
+
+		function fdaA(){
+			if(document.getElementById("daA").innerHTML == result){
+				document.getElementById("buttonA").style = "background-color:#66FF66;"
+				setTimeout(" document.getElementById(\"buttonA\").style = \"background-color:#efefef;\" ",600)
+				date = new Date
+				time1 = date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds() + date.getMilliseconds() * 0.001
+				console.log(time1-time)
+				document.getElementById("timeonce").innerHTML = (time1-time).toFixed(3)
+				suanShi()
+			}
+		}
+		function fdaB(){
+			if(document.getElementById("daB").innerHTML == result){
+				document.getElementById("buttonB").style = "background-color:#66FF66;"
+				setTimeout(" document.getElementById(\"buttonB\").style = \"background-color:#efefef;\" ",600)
+				date = new Date
+				time1 = date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds() + date.getMilliseconds() * 0.001
+				console.log(time1-time)
+				document.getElementById("timeonce").innerHTML = (time1-time).toFixed(3)
+				suanShi()
+			}
+		}
+		function fdaC(){
+			if(document.getElementById("daC").innerHTML == result){
+				document.getElementById("buttonC").style = "background-color:#66FF66;"
+				setTimeout(" document.getElementById(\"buttonC\").style = \"background-color:#efefef;\" ",600)
+				date = new Date
+				time1 = date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds() + date.getMilliseconds() * 0.001
+				console.log(time1-time)
+				document.getElementById("timeonce").innerHTML = (time1-time).toFixed(3)
+				suanShi()
+			}
+		}
+		function fdaD(){
+			if(document.getElementById("daD").innerHTML == result){
+				document.getElementById("buttonD").style = "background-color:#66FF66;"
+				setTimeout(" document.getElementById(\"buttonD\").style = \"background-color:#efefef;\" ",600)
+				date = new Date
+				time1 = date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds() + date.getMilliseconds() * 0.001
+				console.log(time1-time)
+				document.getElementById("timeonce").innerHTML = (time1-time).toFixed(3)
+				suanShi()
+			}
+		}
+		</script>
+
+	</head>
+	<body class="container bg-white-500">
+			
+		<br><br><br>
+		<p id = "suanshi"> 1 × 1 + 1 =</p><br>
+
+			<div id="A" style="width:60px;float:left">
+			<button id="buttonA" type="button" onclick="fdaA()" style="background-color:#efefef;">A</button><d id="daA">0</d>
+			</div>
+			<div id="B" style="width:50px;float:left">
+			<button id="buttonB" type="button" onclick="fdaB()" style="background-color:#efefef;">B</button><d id="daB">1</d>
+			</div>
+			<div id="C" style="width:50px;float:left">
+			<button id="buttonC" type="button" onclick="fdaC()" style="background-color:#efefef;">C</button><d id="daC">2</d>
+			</div>
+			<div id="D" style="width:50px;float:left">
+			<button id="buttonD" type="button" onclick="fdaD()" style="background-color:#efefef;">D</button><d id="daD">3</d>
+			</div>
+
+		<br><br>
+		<button type="button" onclick="suanShi()">开始</button>
+		<br><br><br>
+			 
+		<table border="1" style="width: 150px;">
+			<tr>
+				<th>
+					-------
+				</th>
+			</tr>
+		<tr>
+		<td id = "timeonce">a</td>
+		<td style="height: 100px;">b</td>
+		</tr>   
+		<tr>
+		<td>c</td>
+		<td>d</td>
+		</tr>
+		</table>
+
+	</body>
+</html>
