@@ -497,3 +497,6 @@ h1 {
   overflow: auto;
 }
 
+table th,table td{
+  border:1px solid #ccc;padding:6px 13px
+}

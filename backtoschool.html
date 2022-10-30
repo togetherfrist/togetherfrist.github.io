@@ -5,7 +5,6 @@
 		<link rel="stylesheet" href="public/build/mt.css">
         <link rel="stylesheet" href="public/build/tailwind/index.css">
 		<title>好好好</title> 
-
 		<script>
 		var result = 2
 		var date = new Date
@@ -16,9 +15,9 @@
 			var z = Math.floor(Math.random()*89+11)
 			document.getElementById("suanshi").innerHTML=x + " × " + y + " + " + z + " = ";
 			result = x*y+z
-			var d1 = Math.floor(Math.random()*11+1)
+			var d1 = 10
 			var d2 = Math.floor(Math.random()*11+1)
-			var d3 = Math.floor(Math.random()*11+1)
+			var d3 = 10
 			var r1 = Math.floor(Math.random()*4)
 			var dalist = ["daA","daB","daC","daD"]
 			document.getElementById(dalist[r1]).innerHTML=result
@@ -49,42 +48,54 @@
 		function fdaA(){
 			if(document.getElementById("daA").innerHTML == result){
 				document.getElementById("buttonA").style = "background-color:#66FF66;"
-				setTimeout(" document.getElementById(\"buttonA\").style = \"background-color:#efefef;\" ",600)
 				date = new Date
 				time1 = date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds() + date.getMilliseconds() * 0.001
 				document.getElementById("timeonce").innerHTML = (time1-time).toFixed(3)
 				suanShi()
 			}
+			else{
+				document.getElementById("buttonA").style = "background-color:#FF3333;"
+			}
+			setTimeout(" document.getElementById(\"buttonA\").style = \"background-color:#efefef;\" ",600)
 		}
 		function fdaB(){
 			if(document.getElementById("daB").innerHTML == result){
 				document.getElementById("buttonB").style = "background-color:#66FF66;"
-				setTimeout(" document.getElementById(\"buttonB\").style = \"background-color:#efefef;\" ",600)
 				date = new Date
 				time1 = date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds() + date.getMilliseconds() * 0.001
 				document.getElementById("timeonce").innerHTML = (time1-time).toFixed(3)
 				suanShi()
 			}
+			else{
+				document.getElementById("buttonB").style = "background-color:#FF3333;"
+			}
+			setTimeout(" document.getElementById(\"buttonB\").style = \"background-color:#efefef;\" ",600)
 		}
 		function fdaC(){
 			if(document.getElementById("daC").innerHTML == result){
 				document.getElementById("buttonC").style = "background-color:#66FF66;"
-				setTimeout(" document.getElementById(\"buttonC\").style = \"background-color:#efefef;\" ",600)
 				date = new Date
 				time1 = date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds() + date.getMilliseconds() * 0.001
 				document.getElementById("timeonce").innerHTML = (time1-time).toFixed(3)
 				suanShi()
 			}
+			else{
+				document.getElementById("buttonC").style = "background-color:#FF3333;"
+			}
+			setTimeout(" document.getElementById(\"buttonC\").style = \"background-color:#efefef;\" ",600)
 		}
 		function fdaD(){
 			if(document.getElementById("daD").innerHTML == result){
 				document.getElementById("buttonD").style = "background-color:#66FF66;"
-				setTimeout(" document.getElementById(\"buttonD\").style = \"background-color:#efefef;\" ",600)
 				date = new Date
 				time1 = date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds() + date.getMilliseconds() * 0.001
 				document.getElementById("timeonce").innerHTML = (time1-time).toFixed(3)
 				suanShi()
 			}
+			else{
+				document.getElementById("buttonD").style = "background-color:#FF3333;"
+			}
+			setTimeout(" document.getElementById(\"buttonD\").style = \"background-color:#efefef;\" ",600)
 		}
 		function shanxuanxiang(xuanxiang){
 			if(xuanxiang != document.getElementById("daA2").innerHTML && xuanxiang != document.getElementById("daB2").innerHTML && xuanxiang != document.getElementById("daC2").innerHTML && xuanxiang != document.getElementById("daD2").innerHTML){
@@ -115,46 +126,64 @@
 			var daanweizhi = ["daA2","daB2","daC2","daD2"]
 			document.getElementById(daanweizhi[r4]).innerHTML=zhongwen[r2]
 		}
+		var zhengqueshu = 0
+		var cuowushu = 0
+		function fdacuo(){
+			if(!document.getElementById("jilu").innerHTML.endsWith(danci[r2]+zhongwen[r2]+"<br>")){
+				cuowushu += 1
+				document.getElementById("cuowushu").innerHTML = cuowushu
+				document.getElementById("jilu").innerHTML = document.getElementById("jilu").innerHTML + danci[r2] + zhongwen[r2]+"<br>"
+			}
+		}
+		function fdadui(){
+			zhengqueshu += 1
+			document.getElementById("zhengqueshu").innerHTML = zhengqueshu
+			wenti()
+		}
 		function fdaA2(){
 			if(document.getElementById("daA2").innerHTML == daan){
 				document.getElementById("buttonA2").style = "background-color:#66FF66;"
-				setTimeout(" document.getElementById(\"buttonA2\").style = \"background-color:#efefef;\" ",600)
-				wenti()
+				fdadui()
 			}
 			else{
-				document.getElementById("cuowu").innerHTML=danci[r2] + zhongwen[r2]
+				document.getElementById("buttonA2").style = "background-color:#FF3333;"
+				fdacuo()
 			}
+			setTimeout(" document.getElementById(\"buttonA2\").style = \"background-color:#efefef;\" ",600)
 		}
 		function fdaB2(){
 			if(document.getElementById("daB2").innerHTML == daan){
 				document.getElementById("buttonB2").style = "background-color:#66FF66;"
-				setTimeout(" document.getElementById(\"buttonB2\").style = \"background-color:#efefef;\" ",600)
-				wenti()
+				fdadui()
 			}
 			else{
-				document.getElementById("cuowu").innerHTML=danci[r2] + zhongwen[r2]
+				document.getElementById("buttonB2").style = "background-color:#FF3333;"
+				fdacuo()
 			}
+			setTimeout(" document.getElementById(\"buttonB2\").style = \"background-color:#efefef;\" ",600)
 		}
 		function fdaC2(){
 			if(document.getElementById("daC2").innerHTML == daan){
 				document.getElementById("buttonC2").style = "background-color:#66FF66;"
-				setTimeout(" document.getElementById(\"buttonC2\").style = \"background-color:#efefef;\" ",600)
-				wenti()
+				fdadui()
 			}
 			else{
-				document.getElementById("cuowu").innerHTML=danci[r2] + zhongwen[r2]
+				document.getElementById("buttonC2").style = "background-color:#FF3333;"
+				fdacuo()
 			}
+			setTimeout(" document.getElementById(\"buttonC2\").style = \"background-color:#efefef;\" ",600)
+
 		}
 		function fdaD2(){
 			if(document.getElementById("daD2").innerHTML == daan){
 				document.getElementById("buttonD2").style = "background-color:#66FF66;"
-				setTimeout(" document.getElementById(\"buttonD2\").style = \"background-color:#efefef;\" ",600)
-				wenti()
+				fdadui()
 			}
 			else{
-				document.getElementById("cuowu").innerHTML=danci[r2] + zhongwen[r2]
-				console.log(daan)
+				document.getElementById("buttonD2").style = "background-color:#FF3333;"
+				fdacuo()
 			}
+			setTimeout(" document.getElementById(\"buttonD2\").style = \"background-color:#efefef;\" ",600)
 		}
 
 		</script>
@@ -184,15 +213,15 @@
 			<button type="button" onclick="suanShi()">开始</button>
 			
 			<br><br><br>	 
-			<table border="1" style="width: 150px;">
+			<table border="1" style="width: 200px;">
 				<tr>
 					<th>
-						-------
+						
 					</th>
 				</tr>
 			<tr>
 			<td id = "timeonce">a</td>
-			<td id = "cuowu" style="height: 100px;">b</td>
+			<td id = "cuowu" >b</td>
 			</tr>   
 			<tr>
 			<td>c</td>
@@ -202,7 +231,7 @@
 
 		</div>
 
-		<div style="width:300px;float:left">
+		<div style="width:350px;float:left">
 			<p id = "wenti"> apple 的意思是</p><br>
 
 			<button id="buttonA2" type="button" onclick="fdaA2()" style="background-color:#efefef;">A</button><d id="daA2">好好好</d><br>
@@ -210,7 +239,25 @@
 			<button id="buttonC2" type="button" onclick="fdaC2()" style="background-color:#efefef;">C</button><d id="daC2">披萨草</d><br>
 			<button id="buttonD2" type="button" onclick="fdaD2()" style="background-color:#efefef;">D</button><d id="daD2">苹果</d><br><br>
 
-			<button type="button" onclick="wenti()">开始</button><br>
+			<button type="button" onclick="wenti()">开始</button><br><br>
+			<table border="1">
+				<tr>
+					<th>正确数</th>
+					<th>错误数</th>
+				</tr>
+				<tr>
+					<td id = "zhengqueshu">0</td>
+					<td id = "cuowushu">0</td>
+				</tr>
+				<tr>
+					<td>错误记录</td>
+				</tr>
+				<tr>
+					<td id = "jilu"></td>
+				</tr>
+			</table>
+
+
 		</div>
 
 		
