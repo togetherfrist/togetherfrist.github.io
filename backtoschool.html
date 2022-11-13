@@ -273,6 +273,7 @@
 				juzi = juzixu1
 				fanyi = fanyixu1
 				r5 = Math.floor(Math.random()*juzi.length)
+				r5 = 232
 				timu = juzi[r5]
 				daan2 = fanyi[r5]
 			}
@@ -328,18 +329,14 @@
 				r7 = Math.floor(Math.random()*fanyi2.length)
 				r8 = Math.floor(Math.random()*fanyi2[r7].length)
 				rda = Math.floor(Math.random()*dawei.length)
-				document.getElementById(dawei[rda]).innerHTML=fanyi[r7][r8] //答案4
+				document.getElementById(dawei[rda]).innerHTML=fanyi2[r7][r8] //答案4
 			}
 			else {
-				console.log(r5)
-				console.log(fanyi.length)
-				console.log(fanyi[r5].length)
 				fanyi5 = fanyi[r5].filter(fanyi5_2)
 				r7 = Math.floor(Math.random()*fanyi5.length)
 				rda = Math.floor(Math.random()*dawei.length)
 				document.getElementById(dawei[rda]).innerHTML=fanyi5[r7] //答案2
 				dawei = dawei.filter(filt)
-				console.log(r7)
 				fanyi5 = fanyi5.filter(fanyi5_3)
 
 				r8 = Math.floor(Math.random()*fanyi5.length)
