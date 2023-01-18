@@ -80,7 +80,7 @@
                 for(var j = x - r; j < x + r; j++){
                     if((j - x)*(j - x) + (i - y)*(i - y) <= r * r){
                         if(i > 1 && j > 1 && i < h - 2 && j < w - 2){   //w = canvas.width, h = canvas.height
-                            var core = i * w + j + 1
+                            var core = i * w + j
                             var color = []
                             for(k = 0; k < 3; k++){
                                 color[k] = Math.floor(list[core][k] * 0.16 + (list[core+1][k]+list[core-1][k]+list[core-w][k]+list[core+w][k]) * 0.11 + (list[core+2][k]+list[core-2][k]+list[core-2*w][k]+list[core+2*w][k]) * 0.02 + (list[core+1+w][k]+list[core+1-w][k]+list[core-1+w][k]+list[core-1-w][k]) * 0.06 + (list[core+1+2*w][k]+list[core+1-2*w][k]+list[core-1+2*w][k]+list[core-1-2*w][k]+list[core+2+w][k]+list[core+2-w][k]+list[core-2+w][k]+list[core-2-w][k]) * 0.01)
