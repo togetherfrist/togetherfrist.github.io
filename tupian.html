@@ -57,8 +57,6 @@
         var r = 20, x = 0, y = 0
 
         canvas.addEventListener("mousemove", function __handler__(evt) {
-            //destinationImage.src = canvas2.toDataURL("image/png");
-            //ctx.drawImage(destinationImage,0,0);
             ctx.drawImage(canvas2,0,0)
             var rect = canvas.getBoundingClientRect()
             x = evt.clientX - rect.left
