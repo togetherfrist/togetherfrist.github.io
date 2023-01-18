@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>?</title>
+    <script>
+
+    </script>
+</head>
+<body>
+
+    <div>
+        <label>图片</label>
+        <div>
+            <input type='hidden' id='img_url' />
+            <input type='file' onchange='showImg()' id='img_file'/>
+            <img src='' alt='' id='png' hidden="hidden">
+        </div>
+    </div>
+    <canvas id="myCanvas" width="0" height="0"></canvas>
+    <canvas id="myCanvas2" width="0" height="0" hidden="hidden"></canvas>
+
+    <script>
+        function showImg(){
+            var file = document.getElementById('img_file').files[0];
+            var re = new FileReader();
+            re.readAsDataURL(file);
+            re.onload = function(re){
+                    document.getElementById('png').src=re.target.result;
+            }
+            var img = document.getElementById('png')
+            img.onload = function(){
+                console.log("111！");
+                fangruhuabu()
+            }
+        }
+
+        const canvas = document.getElementById("myCanvas"); // canvas画布
+        const canvas2 = document.getElementById("myCanvas2");
+        const ctx = canvas.getContext("2d");
+        const ctx2 = canvas2.getContext("2d");
+        var image = new Image();
+        var w,h
+        var destinationImage = new Image();
+
+        function fangruhuabu(){
+            canvas.width = document.querySelector("#png").naturalWidth
+            canvas.height = document.querySelector("#png").naturalHeight
+            canvas2.width = document.querySelector("#png").naturalWidth
+            canvas2.height = document.querySelector("#png").naturalHeight
+            image.src = document.getElementById("png").src
+            w = canvas.width
+            h = canvas.height
+            ctx.drawImage(image, 0, 0 , w, h)
+            ctx2.drawImage(image, 0, 0 , w, h)
+        }
+
+        var r = 20, x = 0, y = 0
+
+        canvas.addEventListener("mousemove", function __handler__(evt) {
+            destinationImage.src = canvas2.toDataURL("image/png");
+            ctx.drawImage(destinationImage,0,0);
+            var rect = canvas.getBoundingClientRect();
+            x = evt.clientX - rect.left;
+            y = evt.clientY - rect.top;
+            ctx.beginPath();
+            ctx.arc(x,y,r,0,2*Math.PI)
+            ctx.strokeStyle = "#9a9a9a";
+            ctx.stroke();
+
+        });
+        canvas.addEventListener("click", function __handler__(evt) {
+            var rect = canvas.getBoundingClientRect();
+            x = evt.clientX - rect.left;
+            y = evt.clientY - rect.top;
+            var imgData = ctx2.getImageData(0,0,w,h).data
+            var list = [[]]
+            for(var i = 0; i < imgData.length - 1; i += 4 ){
+                list[i/4] = [imgData[i],imgData[i+1],imgData[i+2]]
+            }
+            for(var i = y - r; i < y + r; i++){
+                for(var j = x - r; j < x + r; j++){
+                    if((j - x)*(j - x) + (i - y)*(i - y) <= r * r){
+                        if(i > 1 && j > 1 && i < h - 2 && j < w - 2){   //w = canvas.width, h = canvas.height
+                            var core = i * w + j + 1
+                            var color = []
+                            for(k = 0; k < 3; k++){
+                                color[k] = Math.floor(list[core][k] * 0.16 + (list[core+1][k]+list[core-1][k]+list[core-w][k]+list[core+w][k]) * 0.11 + (list[core+2][k]+list[core-2][k]+list[core-2*w][k]+list[core+2*w][k]) * 0.02 + (list[core+1+w][k]+list[core+1-w][k]+list[core-1+w][k]+list[core-1-w][k]) * 0.06 + (list[core+1+2*w][k]+list[core+1-2*w][k]+list[core-1+2*w][k]+list[core-1-2*w][k]+list[core+2+w][k]+list[core+2-w][k]+list[core-2+w][k]+list[core-2-w][k]) * 0.01)
+                            }
+                            var rgb = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ")"
+                            ctx2.fillStyle = rgb
+                            ctx2.fillRect(j,i,1,1)
+                        }
+                    }
+                }
+            }
+
+        });
+        canvas.addEventListener("mousewheel", function __handler__(evt) {
+            if(evt.wheelDelta > 0){
+                r += 1
+            }
+            else if(r > 0){
+                r -= 1
+            }
+            destinationImage.src = canvas2.toDataURL("image/png");
+            ctx.drawImage(destinationImage,0,0);
+            ctx.beginPath();
+            ctx.arc(x,y,r,0,2*Math.PI)
+            ctx.strokeStyle = "#9a9a9a";
+            ctx.stroke();
+        })
+
+        /*
+        function getImageData(canvas,url){
+            
+            image.src= url //+ '?' + new Date().getTime();
+            //image.setAttribute('crossOrigin', '');
+            //获取画布宽高
+            const w = canvas.width;
+            const h = canvas.height;
+            return new Promise((resolve)=>{
+                image.onload = function(){
+                    ctx.drawImage(image, 0, 0 ,w,h);                           // 将图片绘制到画布上
+                    const imgData = ctx.getImageData(0,0,w,h);    // 获取画布上的图像像素
+                    resolve(imgData.data)  // 获取到的数据为一维数组,包含图像的RGBA四个通道数据
+                    //ctx.clearRect(0,0,w,h);
+                }
+            }) 
+        }
+        */
+
+
+    </script>
+    
+
+</body>
+</html>
+
+</div></code>
