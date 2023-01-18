@@ -35,11 +35,11 @@
             }
         }
 
-        const canvas = document.getElementById("myCanvas"); // canvas画布
-        const canvas2 = document.getElementById("myCanvas2");
-        const ctx = canvas.getContext("2d");
-        const ctx2 = canvas2.getContext("2d");
-        var image = new Image();
+        const canvas = document.getElementById("myCanvas")
+        const canvas2 = document.getElementById("myCanvas2")
+        const ctx = canvas.getContext("2d")
+        const ctx2 = canvas2.getContext("2d")
+        var image = new Image()
         var w,h
 
         function fangruhuabu(){
@@ -107,26 +107,6 @@
             ctx.strokeStyle = "#9a9a9a";
             ctx.stroke();
         })
-
-        /*
-        function getImageData(canvas,url){
-            
-            image.src= url //+ '?' + new Date().getTime();
-            //image.setAttribute('crossOrigin', '');
-            //获取画布宽高
-            const w = canvas.width;
-            const h = canvas.height;
-            return new Promise((resolve)=>{
-                image.onload = function(){
-                    ctx.drawImage(image, 0, 0 ,w,h);                           // 将图片绘制到画布上
-                    const imgData = ctx.getImageData(0,0,w,h);    // 获取画布上的图像像素
-                    resolve(imgData.data)  // 获取到的数据为一维数组,包含图像的RGBA四个通道数据
-                    //ctx.clearRect(0,0,w,h);
-                }
-            }) 
-        }
-        */
-
 
     </script>
     
