@@ -18,7 +18,7 @@
         </div>
     </div>
     <canvas id="myCanvas" width="0" height="0"></canvas>
-    <canvas id="myCanvas2" width="0" height="0" hidden="hidden"></canvas>
+    <canvas id="myCanvas2" width="0" height="0" hidden="hidden" onload="loadcanvas()"></canvas>
 
     <script>
         function showImg(){
@@ -30,7 +30,7 @@
             }
             var img = document.getElementById('png')
             img.onload = function(){
-                console.log("111！");
+                console.log("111!");
                 fangruhuabu()
             }
         }
@@ -41,7 +41,6 @@
         const ctx2 = canvas2.getContext("2d");
         var image = new Image();
         var w,h
-        var destinationImage = new Image();
 
         function fangruhuabu(){
             canvas.width = document.querySelector("#png").naturalWidth
@@ -58,15 +57,16 @@
         var r = 20, x = 0, y = 0
 
         canvas.addEventListener("mousemove", function __handler__(evt) {
-            destinationImage.src = canvas2.toDataURL("image/png");
-            ctx.drawImage(destinationImage,0,0);
-            var rect = canvas.getBoundingClientRect();
-            x = evt.clientX - rect.left;
-            y = evt.clientY - rect.top;
+            //destinationImage.src = canvas2.toDataURL("image/png");
+            //ctx.drawImage(destinationImage,0,0);
+            ctx.drawImage(canvas2,0,0)
+            var rect = canvas.getBoundingClientRect()
+            x = evt.clientX - rect.left
+            y = evt.clientY - rect.top
             ctx.beginPath();
             ctx.arc(x,y,r,0,2*Math.PI)
-            ctx.strokeStyle = "#9a9a9a";
-            ctx.stroke();
+            ctx.strokeStyle = "#9a9a9a"
+            ctx.stroke()
 
         });
         canvas.addEventListener("click", function __handler__(evt) {
@@ -94,7 +94,7 @@
                     }
                 }
             }
-
+            ctx.drawImage(canvas2,0,0)
         });
         canvas.addEventListener("mousewheel", function __handler__(evt) {
             if(evt.wheelDelta > 0){
@@ -103,8 +103,7 @@
             else if(r > 0){
                 r -= 1
             }
-            destinationImage.src = canvas2.toDataURL("image/png");
-            ctx.drawImage(destinationImage,0,0);
+            ctx.drawImage(canvas2,0,0)
             ctx.beginPath();
             ctx.arc(x,y,r,0,2*Math.PI)
             ctx.strokeStyle = "#9a9a9a";
