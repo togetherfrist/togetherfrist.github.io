@@ -68,9 +68,9 @@
 
         });
         canvas.addEventListener("click", function __handler__(evt) {
-            var rect = canvas.getBoundingClientRect();
-            x = evt.clientX - rect.left;
-            y = evt.clientY - rect.top;
+            var rect = canvas.getBoundingClientRect()
+            x = Math.floor(evt.clientX - rect.left)
+            y = Math.floor(evt.clientY - rect.top)
             var imgData = ctx2.getImageData(0,0,w,h).data
             var list = [[]]
             for(var i = 0; i < imgData.length - 1; i += 4 ){
@@ -81,9 +81,101 @@
                     if((j - x)*(j - x) + (i - y)*(i - y) <= r * r){
                         if(i > 1 && j > 1 && i < h - 2 && j < w - 2){   //w = canvas.width, h = canvas.height
                             var core = i * w + j
-                            var color = []
-                            for(k = 0; k < 3; k++){
+                            var color = [0,0,0]
+                            for(var k = 0; k < 3; k++){
                                 color[k] = Math.floor(list[core][k] * 0.16 + (list[core+1][k]+list[core-1][k]+list[core-w][k]+list[core+w][k]) * 0.11 + (list[core+2][k]+list[core-2][k]+list[core-2*w][k]+list[core+2*w][k]) * 0.02 + (list[core+1+w][k]+list[core+1-w][k]+list[core-1+w][k]+list[core-1-w][k]) * 0.06 + (list[core+1+2*w][k]+list[core+1-2*w][k]+list[core-1+2*w][k]+list[core-1-2*w][k]+list[core+2+w][k]+list[core+2-w][k]+list[core-2+w][k]+list[core-2-w][k]) * 0.01)
+                            }
+                            var rgb = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ")"
+                            ctx2.fillStyle = rgb
+                            ctx2.fillRect(j,i,1,1)
+                        }
+                        else if(i >= 0 && j >= 0 && i < h && j < w){
+                            var core = i * w + j
+                            var color = [0,0,0]
+                            for(var k = 0; k < 3; k++){
+                                var quanzhong = 0.16
+                                color[k] = list[core][k] * 0.16
+                                if(i > 0){
+                                    color[k] += list[core-w][k] * 0.11
+                                    quanzhong += 0.11
+                                    if(j > 0){
+                                        color[k] += list[core-w-1][k] * 0.06
+                                        quanzhong += 0.06
+                                    }
+                                    if(j > 1){
+                                        color[k] += list[core-w-2][k] * 0.01
+                                        quanzhong += 0.01
+                                    }
+                                    if(j < w - 1){
+                                        color[k] += list[core-w+1][k] * 0.06
+                                        quanzhong += 0.06
+                                    }
+                                    if(j < w - 2){
+                                        color[k] += list[core-w+2][k] * 0.01
+                                        quanzhong += 0.01
+                                    }
+                                }
+                                if(i > 1){
+                                    color[k] += list[core-2*w][k] * 0.02
+                                    quanzhong += 0.02
+                                    if(j > 0){
+                                        color[k] += list[core-2*w-1][k] * 0.01
+                                        quanzhong += 0.01
+                                    }
+                                    if(j < w - 1){
+                                        color[k] += list[core-2*w+1][k] * 0.01
+                                        quanzhong += 0.01
+                                    }
+                                }
+                                if(i < h - 1){
+                                    color[k] += list[core+w][k] * 0.11
+                                    quanzhong += 0.11
+                                    if(j > 0){
+                                        color[k] += list[core+w-1][k] * 0.06
+                                        quanzhong += 0.06
+                                    }
+                                    if(j > 1){
+                                        color[k] += list[core+w-2][k] * 0.01
+                                        quanzhong += 0.01
+                                    }
+                                    if(j < w - 1){
+                                        color[k] += list[core+w+1][k] * 0.06
+                                        quanzhong += 0.06
+                                    }
+                                    if(j < w - 2){
+                                        color[k] += list[core+w+2][k] * 0.01
+                                        quanzhong += 0.01
+                                    }
+                                }
+                                if(i < h - 2){
+                                    color[k] += list[core+2*w][k] * 0.02
+                                    quanzhong += 0.02
+                                    if(j > 0){
+                                        color[k] += list[core+2*w-1][k] * 0.01
+                                        quanzhong += 0.01
+                                    }
+                                    if(j < w - 1){
+                                        color[k] += list[core+2*w+1][k] * 0.01
+                                        quanzhong += 0.01
+                                    }                                
+                                }
+                                if(j > 0){
+                                    color[k] += list[core-1][k] * 0.11
+                                    quanzhong += 0.11
+                                }
+                                if(j > 1){
+                                    color[k] += list[core-2][k] * 0.02
+                                    quanzhong += 0.02
+                                }
+                                if(j < w - 1){
+                                    color[k] += list[core+1][k] * 0.11
+                                    quanzhong += 0.11
+                                }
+                                if(j < w - 2){
+                                    color[k] += list[core+2][k] * 0.02
+                                    quanzhong += 0.02
+                                }
+                                color[k] = Math.floor(color[k] / quanzhong)
                             }
                             var rgb = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ")"
                             ctx2.fillStyle = rgb
