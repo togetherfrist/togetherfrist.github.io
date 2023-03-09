@@ -64,7 +64,10 @@ import groovy.transform.BaseScript
 @BaseScript GlobalUtils _  
     
 IItemStack nugget = itemStack(Minecraft.iron_nugget)    //定义变量 nugget ，后面可以用 nugget 代替 itemStack(Minecraft.iron_nugget)
-CraftTweakerAPI.recipes.addShaped(itemStack(Minecraft.chainmail_chestplate),(IIngredient[][])[[nugget,null,nugget],[nugget,nugget,nugget],[nugget,nugget,nugget]],null,null)    //八个铁粒合成锁链胸甲  
+CraftTweakerAPI.recipes.addShaped(itemStack(Minecraft.chainmail_chestplate),(IIngredient[][])[[nugget,null,nugget],[nugget,nugget,nugget],[nugget,nugget,nugget]],null,null)    //八个铁粒合成锁链胸甲 
+IItemStack stone = itemStack(Minecraft.cobblestone)
+IItemStack string = itemStack(Minecraft.string)
+CraftTweakerAPI.recipes.addShaped(itemStack(Minecraft.bow),(IIngredient[][])[[string,stone],[string,null,stone],[string,stone]],null,null)  //圆石弓 
 CraftTweakerAPI.recipes.addShapeless(itemStack(Minecraft.golden_apple),(IIngredient[])[itemStack(Minecraft.gold_ingot),itemStack(Minecraft.apple)],null,null)   //无序合成：金锭和苹果合成金苹果  
 CraftTweakerAPI.furnace.addRecipe(itemStack(Minecraft.dirt),itemStack(Minecraft.grass),10)  //熔炉配方：草方块烧成泥土并产生 10 点经验
 </code></pre>
