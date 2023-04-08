@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>你画我猜</title>
+        <link rel="stylesheet" href="public/build/mt.css">
+        <link rel="stylesheet" href="public/build/tailwind/index.css">
+    </head>
+
+    <body class="container" style="background-color:#fafdff;color: rgb(0, 0, 0);font-size: 20px;">
+
+        <div id="container" style="width:1150px" float="left">
+        
+            <div id="header" class="text-center">
+            <p style="margin-bottom:0;">你画我猜</p></div>
+            
+            <div id="menu" style="background-color:#ffffff;height:200px;width:200px;float:left">
+            <b>待定</b><br>
+        </div>
+            <div id="in" style="background-color:#ffffff;height:1000px;width:500px;float:left">
+                
+                <p>好</p>
+                <input type="text" id="username" placeholder="起个名字"/>
+                <button id="enter">确认</button>
+                <script>
+                    ;((doc,storage,location) => {
+                        const oUsername = doc.querySelector('#username');
+                        const oEnterBtn = doc.querySelector('#enter');
+
+                        const init = () => {
+                            bindEvent(); 
+                        }
+
+                        function bindEvent(){
+                            oEnterBtn.addEventListener('click',handleEnterBtnClick,false);
+                        }
+                        function handleEnterBtnClick(){
+                            const username = oUsername.value.trim();
+                            console.log(username);
+                            storage.setItem('username',username);
+                            location.href = '';
+                        }
+                        init();
+                    })(document,localStorage,location);
+                </script>
+                
+                <ul id="list">
+                    <input type="text" id="message" placeholder="请输入消息" onkeydown="enterkey()"/>
+                    <button id="send">发送</button>
+                </ul>
+                <script>
+                    function enterkey(event){
+                        event = event || window.event
+                        if(event.keyCode == 13){
+                            handleSendBtnClick()
+                        }
+                    }
+
+                </script>
+                <script>
+                    const oList = document.querySelector('#list');
+                    const oMessage = document.querySelector('#message');
+                    const oSendBtn = document.querySelector('#send');
+                    let username = '';
+            
+                    const ws = new WebSocket('ws:localhost:8000');
+            
+                        oSendBtn.addEventListener('click',handleSendBtnClick,false);
+                        ws.addEventListener('open',handleOpen,false);
+                        ws.addEventListener('close',handleClose,false);
+                        ws.addEventListener('error',handleError,false);
+                        ws.addEventListener('message',handleMessage,false);
+                    function handleSendBtnClick(){
+                        console.log('send message');
+                        const msg = oMessage.value;
+                        if(!msg.trim().length){
+                            return;
+                        }
+                        ws.send(JSON.stringify({
+                            user:username,
+                            dateTime:new Date().getTime(),
+                            message:msg
+                        }))
+            
+                        oMessage.value = '';
+                    }
+                    function handleOpen(){
+                        console.log('WebSocket open');
+                        username = localStorage.getItem('username');
+            
+                    }
+                    function handleClose(){
+                        console.log('WebSocket close');
+                    }
+                    function handleError(){
+                        console.log('WebSocket error');
+                    }
+                    function handleMessage(e){
+                        console.log('WebSocket message');
+                        console.log(e);
+                        var blob = e.data
+                        var reader = new FileReader();
+                        reader.readAsText(blob,"UTF-8")
+                        reader.onload = function(){
+                            oList.appendChild(createMsg(this.result));
+                        }
+                    }
+                    function createMsg(data){
+                        const {user,dateTime,message} = JSON.parse(data);
+                        const oItem = document.createElement('li');
+                        oItem.innerHTML = `
+                            <p>${user}说：${message}</p>
+                        `
+                        return oItem;
+                    }
+        
+                </script>
+
+            </div>
+
+
+
+            
+        </div>
+        
+    </body>
+</html>

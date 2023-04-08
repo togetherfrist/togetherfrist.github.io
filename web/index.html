@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>你画我猜</title>
+    </head>
+    <body>
+        <input id="host" value="127.0.0.1:8000"></input>
+        <button onclick="con()">连接</button>
+        <br/><br/>
+        <input type="text" id="username" placeholder="起个名字"/>
+        <button id="enter" onclick="qiming()">确认</button>
+        <br/><br/>
+        <input id="msg" onkeydown="enterkey()"></input>
+        <button onclick="send()">发送</button>
+        <div id="output"></div>
+        <script>
+            con()
+            function con(){
+                ws = new WebSocket("ws://" + host.value)
+                ws.onopen = function(evt){writeToScreen("connected!")};
+                ws.onmessage = function(evt){writeToScreen(evt.data)};
+            }
+
+            function send(){
+                message = msg.value;
+                if(sessionStorage.username != undefined){
+                    ws.send(sessionStorage.username + ": " +message);
+                }else{
+                    ws.send(message)
+                }
+                msg.value = ""
+            }
+
+            function writeToScreen(message){
+                var pre = document.createElement("p");
+                pre.innerHTML = message;
+                output.appendChild(pre);
+            }
+
+            function enterkey(event){
+                event = event || window.event
+                if(event.keyCode == 13){
+                    send()
+                }
+            }
+
+            function qiming(){
+                sessionStorage.setItem('username', username.value);
+            }
+        </script>
+    </body>
