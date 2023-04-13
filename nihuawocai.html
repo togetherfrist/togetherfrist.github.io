@@ -3,8 +3,6 @@
     <head>
         <meta charset="UTF-8">
         <title>你画我猜</title>
-        <link rel="stylesheet" href="public/build/mt.css">
-        <link rel="stylesheet" href="public/build/tailwind/index.css">
     </head>
 
     <body class="container" style="background-color:#fafdff;color: rgb(0, 0, 0);font-size: 20px;">
@@ -63,7 +61,7 @@
                     const oSendBtn = document.querySelector('#send');
                     let username = '';
             
-                    const ws = new WebSocket('ws:localhost:8000');
+                    const ws = new WebSocket('ws:frp-fly.top:54283');
             
                         oSendBtn.addEventListener('click',handleSendBtnClick,false);
                         ws.addEventListener('open',handleOpen,false);

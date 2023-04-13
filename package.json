@@ -13,6 +13,7 @@
     "@fullhuman/postcss-purgecss": "^4.0.3",
     "autoprefixer": "^10.4.0",
     "postcss-cli": "^9.0.2",
-    "tailwindcss": "^2.2.19"
+    "tailwindcss": "^2.2.19",
+    "ws": "^8.13.0"
   }
 }

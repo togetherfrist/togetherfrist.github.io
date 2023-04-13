@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>你画我猜</title>
+    </head>
+
+    <body style="background-color:#fafdff;font-size: 20px;">
+
+        <div id="container" style="width:1150px" float="left">
+            
+            <div id="liaotianlan" style="background-color:#ffffff;height:200px;width:260px;float:left">
+                <p>聊天栏</p>
+                <input type="text" id="username" placeholder="起个名字" onkeydown="enterkey1()"/>
+                <button id="setname" onclick="setusername()">确认</button><br/>
+                <script>
+
+                    function enterkey1(event){
+                        event = event || window.event
+                        if(event.keyCode == 13){
+                            setusername()
+                        }
+                    }
+                    function setusername(){
+                        localStorage.setItem('username', username.value.trim());
+                        username.value = '';
+                        username.hidden = 'hidden';
+                        setname.hidden = 'hidden';
+                    }
+
+                </script>
+
+                <input type="text" id="message" placeholder="请输入消息" onkeydown="enterkey2()"/>
+                <button id="send" onclick="sendmsg()">发送</button>
+                <p id="chat">
+
+                </p>
+                <script>
+
+                    function enterkey2(event){
+                        event = event || window.event
+                        if(event.keyCode == 13){
+                            sendmsg()
+                        }
+                    }
+            
+                    const ws = new WebSocket('ws:frp-fly.top:54283');
+            
+                        ws.addEventListener('open',handleOpen,false);
+                        ws.addEventListener('close',handleClose,false);
+                        ws.addEventListener('error',handleError,false);
+                        ws.addEventListener('message',handleMessage,false);
+                    function sendmsg(){
+                        const msg = message.value;
+                        if(!msg.trim().length){
+                            return;
+                        }
+                        console.log('send message');
+                        ws.send(JSON.stringify({
+                            user:localStorage.getItem('username'),
+                            message:msg
+                        }))
+            
+                        message.value = '';
+                    }
+                    function handleOpen(){
+                        console.log('WebSocket open');
+            
+                    }
+                    function handleClose(){
+                        console.log('WebSocket close');
+                    }
+                    function handleError(){
+                        console.log('WebSocket error');
+                    }
+                    function handleMessage(e){
+                        console.log('WebSocket message');
+                        console.log(e);
+                        var blob = e.data
+                        var reader = new FileReader();
+                        reader.readAsText(blob,"UTF-8")
+                        reader.onload = function(){
+                            chat.appendChild(createMsg(this.result));
+                        }
+                    }
+                    function createMsg(data){
+                        const {user,message} = JSON.parse(data);
+                        const oItem = document.createElement('p');
+                        oItem.innerHTML = `
+                            ${user}说：${message}
+                        `
+                        return oItem;
+                    }
+        
+                </script>
+
+            </div>
+
+        </div>
+            <div id="in" style="background-color:#ffffff;height:1000px;width:500px;float:left">
+                <p>待定</p>
+            </div>
+            
+        </div>
+        
+    </body>
+</html>

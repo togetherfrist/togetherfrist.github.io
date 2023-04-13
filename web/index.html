@@ -17,7 +17,7 @@
         <script>
             con()
             function con(){
-                ws = new WebSocket("ws://" + host.value)
+                ws = new WebSocket("ws:" + host.value)
                 ws.onopen = function(evt){writeToScreen("connected!")};
                 ws.onmessage = function(evt){writeToScreen(evt.data)};
             }
