@@ -1,8 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
     <head>
         <meta charset="UTF-8">
         <title>你画我猜</title>
+        <style>
+            chat p{
+                margin-top: 0px;
+                margin-bottom: 0px;
+            }
+        </style>
     </head>
 
     <body style="background-color:#fafdff;font-size: 20px;">
@@ -10,7 +16,10 @@
         <div id="container" style="width:1150px" float="left">
             
             <div id="liaotianlan" style="background-color:#ffffff;height:200px;width:260px;float:left">
-                <p>聊天栏</p>
+                <div style="height:200px;width:260px;float:left;overflow:auto;display:flex;flex-direction:column-reverse;">
+                    <chat id="chat"></chat>
+                </div>
+                
                 <input type="text" id="username" placeholder="起个名字" onkeydown="enterkey1()"/>
                 <button id="setname" onclick="setusername()">确认</button><br/>
                 <script>
@@ -22,7 +31,12 @@
                         }
                     }
                     function setusername(){
+                        if(!username.value.trim().length) return
                         localStorage.setItem('username', username.value.trim());
+                        ws.send(JSON.stringify({
+                            type:"username",
+                            user:username.value
+                        }))
                         username.value = '';
                         username.hidden = 'hidden';
                         setname.hidden = 'hidden';
@@ -32,9 +46,7 @@
 
                 <input type="text" id="message" placeholder="请输入消息" onkeydown="enterkey2()"/>
                 <button id="send" onclick="sendmsg()">发送</button>
-                <p id="chat">
 
-                </p>
                 <script>
 
                     function enterkey2(event){
@@ -50,6 +62,7 @@
                         ws.addEventListener('close',handleClose,false);
                         ws.addEventListener('error',handleError,false);
                         ws.addEventListener('message',handleMessage,false);
+                    
                     function sendmsg(){
                         const msg = message.value;
                         if(!msg.trim().length){
@@ -57,6 +70,7 @@
                         }
                         console.log('send message');
                         ws.send(JSON.stringify({
+                            type:"message",
                             user:localStorage.getItem('username'),
                             message:msg
                         }))
@@ -65,7 +79,9 @@
                     }
                     function handleOpen(){
                         console.log('WebSocket open');
-            
+                        const newp = document.createElement('p');
+                        newp.innerHTML = "已连接"
+                        chat.appendChild(newp);
                     }
                     function handleClose(){
                         console.log('WebSocket close');
@@ -80,17 +96,30 @@
                         var reader = new FileReader();
                         reader.readAsText(blob,"UTF-8")
                         reader.onload = function(){
-                            chat.appendChild(createMsg(this.result));
+                            var json1 = JSON.parse(this.result)
+                            console.log(json1)
+                            switch(json1.type){
+                                case "message":
+                                    addToChatEnd(json1)
+                                    break
+                                case "start":
+                                    console.log("start?")
+                                    addToChatEnd(json1)
+                                    break
+                                case "username":
+                                    huiheshu.removeAttribute("disabled")
+                                    shijian.removeAttribute("disabled")
+                                    startbutton.removeAttribute("hidden")
+                            }
                         }
+                        
                     }
-                    function createMsg(data){
-                        const {user,message} = JSON.parse(data);
-                        const oItem = document.createElement('p');
-                        oItem.innerHTML = `
-                            ${user}说：${message}
-                        `
-                        return oItem;
+                    function addToChatEnd(json1){
+                        const newp = document.createElement('p');
+                        newp.innerHTML = json1.user + "：" + json1.message
+                        chat.appendChild(newp);
                     }
+                    
         
                 </script>
 
@@ -98,7 +127,34 @@
 
         </div>
             <div id="in" style="background-color:#ffffff;height:1000px;width:500px;float:left">
-                <p>待定</p>
+                <dating id="dating">
+                <p>大厅</p>
+                    <p>回合数：<input type="text" id="huiheshu" placeholder="等于人数" list="huihe" disabled/>
+                    <datalist id="huihe">
+                        <option value="人数">人数</option>
+                        <option value="5">5</option>
+                    </datalist>
+                    </p>
+                    <p>时间：<input type="text" id="shijian" placeholder="中" list="shijianlist" disabled/></p>
+                    <datalist id="shijianlist">
+                        <option value="长">长</option>
+                        <option value="中">中</option>
+                        <option value="短">短</option>
+                    </datalist>
+                    <button id="startbutton" onclick="askforstart()" hidden>开始</button><br/>
+                <script>
+                    function askforstart(){
+                        ws.send(JSON.stringify({
+                            type:"start",
+                            user:localStorage.getItem('username'),
+                            message:"aaa"
+                        }))
+                    }
+                </script>
+                </dating>
+                <youxizhong>
+                    <canvas id="myCanvas" width="720" height="540" style="border:1px solid #c3c3c3;"></canvas>
+                </youxizhong>
             </div>
             
         </div>
