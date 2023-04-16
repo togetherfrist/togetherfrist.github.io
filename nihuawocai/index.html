@@ -55,8 +55,15 @@
                             sendmsg()
                         }
                     }
-            
-                    const ws = new WebSocket('ws:frp-fly.top:54283');
+                    
+                    var ws
+
+                    if(window.location.href.includes("https")){
+                        ws = new WebSocket('wss//:frp-fly.top:54283')
+                    }else{
+                        ws = new WebSocket('ws://frp-fly.top:54283')
+                    }
+                    
             
                         ws.addEventListener('open',handleOpen,false);
                         ws.addEventListener('close',handleClose,false);
