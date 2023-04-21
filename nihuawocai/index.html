@@ -8,163 +8,474 @@
                 margin-top: 0px;
                 margin-bottom: 0px;
             }
+            canvas{
+                border:1px solid #c3c3c3;
+            }
         </style>
     </head>
 
     <body style="background-color:#fafdff;font-size: 20px;">
 
-        <div id="container" style="width:1150px" float="left">
             
-            <div id="liaotianlan" style="background-color:#ffffff;height:200px;width:260px;float:left">
-                <div style="height:200px;width:260px;float:left;overflow:auto;display:flex;flex-direction:column-reverse;">
-                    <chat id="chat"></chat>
-                </div>
+        <div id="liaotianlan" style="background-color:#ffffff;height:200px;width:260px;float:left">
+            <div style="height:200px;width:260px;float:left;overflow:auto;display:flex;flex-direction:column-reverse;">
+                <chat id="chat"></chat>
+            </div>
+            
+            <input type="text" id="username" placeholder="起个名字" onkeydown="enterkey1()"/>
+            <button id="setname" onclick="setusername()">确认</button><br/>
+            
+            <script>
+
+                function enterkey1(event){
+                    event = event || window.event
+                    if(event.keyCode == 13){
+                        setusername()
+                    }
+                }
+                function setusername(){
+                    if(!username.value.trim().length) return
+                    localStorage.setItem('username', username.value.trim());
+                    ws.send(JSON.stringify({
+                        type:"username",
+                        user:username.value
+                    }))
+                    username.value = '';
+                    username.hidden = 'hidden';
+                    setname.hidden = 'hidden';
+                }
+
+            </script>
+
+            <input type="text" id="message" placeholder="请输入消息" onkeydown="enterkey2()"/>
+            <button id="send" onclick="sendmsg()">发送</button>
+            <wanjia id="wanjia"></wanjia>
+
+            <script>
+
+                function enterkey2(event){
+                    event = event || window.event
+                    if(event.keyCode == 13){
+                        sendmsg()
+                    }
+                }
                 
-                <input type="text" id="username" placeholder="起个名字" onkeydown="enterkey1()"/>
-                <button id="setname" onclick="setusername()">确认</button><br/>
-                <script>
+                var ws
+                var uid = null
+                var zongshijian
+                var daojishi
+                var shunxu = [[]]
+                var hua = [[]]
+                var ren = [[]]
+                var dengdai = false
 
-                    function enterkey1(event){
-                        event = event || window.event
-                        if(event.keyCode == 13){
-                            setusername()
-                        }
-                    }
-                    function setusername(){
-                        if(!username.value.trim().length) return
-                        localStorage.setItem('username', username.value.trim());
+                if(window.location.href.includes("https")){
+                    ws = new WebSocket('wss//:frp-fly.top:54283')
+                }else{
+                    ws = new WebSocket('ws://127.0.0.1:8000')
+                }
+                
+                ws.addEventListener('open',handleOpen,false);
+                ws.addEventListener('close',handleClose,false);
+                ws.addEventListener('error',handleError,false);
+                ws.addEventListener('message',handleMessage,false);
+
+                window.onbeforeunload = function(event){
+                    if(uid != null){
                         ws.send(JSON.stringify({
-                            type:"username",
-                            user:username.value
-                        }))
-                        username.value = '';
-                        username.hidden = 'hidden';
-                        setname.hidden = 'hidden';
+                        type:"exit",
+                        uid:uid,
+                        user:localStorage.getItem('username')
+                    }))
                     }
+                }
 
-                </script>
-
-                <input type="text" id="message" placeholder="请输入消息" onkeydown="enterkey2()"/>
-                <button id="send" onclick="sendmsg()">发送</button>
-
-                <script>
-
-                    function enterkey2(event){
-                        event = event || window.event
-                        if(event.keyCode == 13){
-                            sendmsg()
-                        }
+                function sendmsg(){
+                    const msg = message.value;
+                    if(!msg.trim().length){
+                        return;
                     }
-                    
-                    var ws
-
-                    if(window.location.href.includes("https")){
-                        ws = new WebSocket('wss//:frp-fly.top:54283')
-                    }else{
-                        ws = new WebSocket('ws://frp-fly.top:54283')
-                    }
-                    
-            
-                        ws.addEventListener('open',handleOpen,false);
-                        ws.addEventListener('close',handleClose,false);
-                        ws.addEventListener('error',handleError,false);
-                        ws.addEventListener('message',handleMessage,false);
-                    
-                    function sendmsg(){
-                        const msg = message.value;
-                        if(!msg.trim().length){
-                            return;
-                        }
-                        console.log('send message');
-                        ws.send(JSON.stringify({
-                            type:"message",
-                            user:localStorage.getItem('username'),
-                            message:msg
-                        }))
-            
-                        message.value = '';
-                    }
-                    function handleOpen(){
-                        console.log('WebSocket open');
-                        const newp = document.createElement('p');
-                        newp.innerHTML = "已连接"
-                        chat.appendChild(newp);
-                    }
-                    function handleClose(){
-                        console.log('WebSocket close');
-                    }
-                    function handleError(){
-                        console.log('WebSocket error');
-                    }
-                    function handleMessage(e){
-                        console.log('WebSocket message');
-                        console.log(e);
-                        var blob = e.data
-                        var reader = new FileReader();
-                        reader.readAsText(blob,"UTF-8")
-                        reader.onload = function(){
-                            var json1 = JSON.parse(this.result)
-                            console.log(json1)
-                            switch(json1.type){
-                                case "message":
-                                    addToChatEnd(json1)
-                                    break
-                                case "start":
-                                    console.log("start?")
-                                    addToChatEnd(json1)
-                                    break
-                                case "username":
-                                    huiheshu.removeAttribute("disabled")
-                                    shijian.removeAttribute("disabled")
-                                    startbutton.removeAttribute("hidden")
-                            }
-                        }
-                        
-                    }
-                    function addToChatEnd(json1){
-                        const newp = document.createElement('p');
-                        newp.innerHTML = json1.user + "：" + json1.message
-                        chat.appendChild(newp);
-                    }
-                    
+                    console.log('send message');
+                    ws.send(JSON.stringify({
+                        type:"message",
+                        user:localStorage.getItem('username'),
+                        message:msg
+                    }))
         
-                </script>
+                    message.value = '';
+                }
+                function handleOpen(){
+                    console.log('WebSocket open');
+                    addStrToChat("已连接")
+                }
+                function handleClose(){
+                    console.log('WebSocket close');
+                    addStrToChat("连接已终止")
+                }
+                function handleError(){
+                    console.log('WebSocket error');
+                }
+                function handleMessage(e){
+                    console.log('WebSocket message');
+                    //console.log(e);
+                    var blob = e.data
+                    var reader = new FileReader();
+                    reader.readAsText(blob,"UTF-8")
+                    reader.onload = function(){
+                        var json1 = JSON.parse(this.result)
+                        console.log(json1)
+                        switch(json1.type){
+                            case "message":
+                                addToChatEnd(json1)
+                                break
+                            case "start":
+                                console.log("start?")
+                                shunxu = json1.message
+                                zongshijian = json1.zongshijian
+                                chutizhong.removeAttribute("hidden")
+                                right.removeAttribute("hidden")
+                                dating.hidden = 'hidden'
+                                jishi.innerHTML = zongshijian * 0.3
+                                daojishi = setInterval(() => {
+                                    jishi.innerHTML = Math.floor(jishi.innerHTML) - 1
+                                }, 1000);
+                                break
+                            case "username":
+                                if(json1.user == localStorage.getItem('username')){
+                                    uid = json1.message
+                                    console.log("uid == " + uid)
+                                    dating.removeAttribute("hidden")
+                                }
+                                var wanj = ""
+                                json1.wanjia.forEach(wan => {
+                                    wanj = wanj + wan + "<br/>"
+                                });
+                                wanjia.innerHTML = "<p>玩家：<br/>" + wanj + "</p>"
+                                break
+                            case "host":
+                                zonghuihe.removeAttribute("disabled")
+                                shijianbeilv.removeAttribute("disabled")
+                                startbutton.removeAttribute("hidden")
+                                break
+                            case "chuti":
+                            case "huawanle":
+                            case "caice":
+                                wancheng.innerHTML = json1.message[0] + " / "
+                                renshu.innerHTML = json1.message[1]
+                                break
+                            case "draw":
+                                clearInterval(daojishi)
+                                hua[json1.huihe - 2] = json1.message
+                                ren[json1.huihe - 2] = json1.ren
+                                var xinweizhi = shunxu[json1.huihe - 1].indexOf(uid)
+                                timu.innerHTML = json1.message[xinweizhi]
+                                chutizhong.hidden = 'hidden'
+                                caicezhong.hidden = 'hidden'
+                                huahuazhong.removeAttribute("hidden")
+                                chuti.value = ""
+                                caice.value = ""
+                                wancheng.innerHTML = 0 + " / "
+                                jishi.innerHTML = zongshijian
+                                daojishi = setInterval(() => {
+                                    jishi.innerHTML = Math.floor(jishi.innerHTML) - 1
+                                }, 1000);
+                                break
+                            case "cai":
+                                clearInterval(daojishi)
+                                hua[json1.huihe - 2] = json1.message
+                                ren[json1.huihe - 2] = json1.ren
+                                var xinweizhi = shunxu[json1.huihe - 1].indexOf(uid)
+                                huati.src = json1.message[xinweizhi]
+                                huahuazhong.hidden = 'hidden'
+                                caicezhong.removeAttribute("hidden")
+                                qingkong()
+                                wancheng.innerHTML = 0 + " / "
+                                jishi.innerHTML = zongshijian * 0.3
+                                daojishi = setInterval(() => {
+                                    jishi.innerHTML = Math.floor(jishi.innerHTML) - 1
+                                }, 1000);
+                                break
+                            case "end":
+                                clearInterval(daojishi)
+                                hua[json1.huihe - 2] = json1.message
+                                ren[json1.huihe - 2] = json1.ren
+                                wancheng.innerHTML = renshu.innerHTML + " / "
+                                chuti.value = ""
+                                caice.value = ""
+                                qingkong()
+                                chutizhong.hidden = 'hidden'
+                                huahuazhong.hidden = 'hidden'
+                                caicezhong.hidden = 'hidden'
+                                right.hidden = 'hidden'
+                                jieshufang.removeAttribute("hidden")
+                                xiayige(0, 0, shunxu.length, shunxu[0].length)
+                                break
+                            case "askforin":
+                                if (json1.user == localStorage.getItem('username') && uid != null){
+                                    ws.send(JSON.stringify({
+                                        type:"disagree"
+                                    }))
+                                }else{
+                                    ws.send(JSON.stringify({
+                                        type:"agree"
+                                    }))
+                                }
+                                break
+                            case "disagree":
+                                dengdai = true
+                            case "agree":
+                                
+                                break
 
-            </div>
+                        }
+                    }
+                    
+                }
+                function xiayige(i, j, imax, jmax){
+                    if (i % 2 == 0){
+                        var newp = document.createElement('p')
+                        newp.innerHTML = ren[i][j] + "：" + hua[i][j]
+                        jieshufang.appendChild(newp)
+                    }else{
+                        var newp = document.createElement('p')
+                        newp.innerHTML = ren[i][j] + "："
+                        jieshufang.appendChild(newp)
+                        var newimg = document.createElement('img')
+                        newimg.src = hua[i][j]
+                        newimg.style.width = "300px"
+                        jieshufang.appendChild(newimg)
+                    }
+                    if (i < imax - 1){
+                        setTimeout(() => {xiayige(i + 1, j, imax, jmax)}, 2000);
+                    }else if(j < jmax - 1){
+                        setTimeout(() => {xiayige(0, j + 1, imax, jmax)}, 10000);
+                    }
+                }
+                function addToChatEnd(json1){
+                    var newp = document.createElement('p')
+                    newp.innerHTML = json1.user + "：" + json1.message
+                    chat.appendChild(newp)
+                }
+                function addStrToChat(str){
+                    var newp = document.createElement('p')
+                    newp.innerHTML = str
+                    chat.appendChild(newp)
+                }
+                
+    
+            </script>
 
         </div>
-            <div id="in" style="background-color:#ffffff;height:1000px;width:500px;float:left">
-                <dating id="dating">
-                <p>大厅</p>
-                    <p>回合数：<input type="text" id="huiheshu" placeholder="等于人数" list="huihe" disabled/>
-                    <datalist id="huihe">
-                        <option value="人数">人数</option>
-                        <option value="5">5</option>
-                    </datalist>
-                    </p>
-                    <p>时间：<input type="text" id="shijian" placeholder="中" list="shijianlist" disabled/></p>
-                    <datalist id="shijianlist">
-                        <option value="长">长</option>
-                        <option value="中">中</option>
-                        <option value="短">短</option>
-                    </datalist>
-                    <button id="startbutton" onclick="askforstart()" hidden>开始</button><br/>
+
+
+        <div id="in" style="background-color:#ffffff;width:1100px;float:left;margin-top:50px;">
+            <dating id="dating" hidden>
+            <p>大厅</p>
+                <p>回合数：<input type="text" id="zonghuihe" placeholder="等于人数" list="huihe" disabled/>
+                <datalist id="huihe">
+                    <option value="5">5</option>
+                    <option value="7">7</option>
+                </datalist>
+                </p>
+                <p>时间倍率：<input type="text" id="shijianbeilv" placeholder="1" list="shijianlist" disabled/></p>
+                <datalist id="shijianlist">
+                    <option value="0.9">0.9</option>
+                    <option value="1">1</option>
+                    <option value="1.1">1.1</option>
+                </datalist>
+                <button id="startbutton" onclick="askforstart()">开始</button><br/>
+            <script>
+                function askforstart(){             //以后记得给按钮加上hidden
+                    var beilv = shijianbeilv.value
+                    if(shijianbeilv.value == ""){
+                        beilv = 1
+                    }
+                    ws.send(JSON.stringify({
+                        type:"start",
+                        uid:0,
+                        message:[],
+                        zonghuihe:Math.floor(zonghuihe.value),
+                        shijianbeilv:Number(beilv) 
+                    }))
+                }
+            </script>
+            </dating>
+            <div id="chutizhong" style="width:725px;float:left;" hidden>
+                <p>写一句话</p>
+                <input type="text" id="chuti" placeholder=""/>
+                <button id="bchuti" onclick="fchuti()">确定</button>
                 <script>
-                    function askforstart(){
+                    function fchuti(){
                         ws.send(JSON.stringify({
-                            type:"start",
+                            type:"chuti",
+                            uid:uid,
                             user:localStorage.getItem('username'),
-                            message:"aaa"
+                            message:chuti.value
+                        }))
+                        bchuti.innerHTML = "已确定！"
+                        setTimeout(() => {bchuti.innerHTML = "确定"}, 1000);
+                    }
+                </script>
+            </div>
+            <div id="caicezhong" style="width:725px;float:left;" hidden>
+                <p>描述出图中的内容</p>
+                <input type="text" id="caice" placeholder=""/>
+                <button id="bcaice" onclick="fcaice()">确定</button>
+                <img id="huati" src="" alt="图片加载中"></img>
+                <script>
+                    function fcaice(){
+                        ws.send(JSON.stringify({
+                            type:"caice",
+                            uid:uid,
+                            user:localStorage.getItem('username'),
+                            message:caice.value
+                        }))
+                        bcaice.innerHTML = "已确定！"
+                        setTimeout(() => {bcaice.innerHTML = "确定"}, 1000);
+                    }
+                </script>
+            </div>
+            <div id="huahuazhong" hidden>
+            <div style="width:725px;float:left;">
+            <p>开始作画吧</p>
+            <p id="timu">null</p>
+            <canvas id="canvas" width="720" height="500"></canvas>
+            </div>
+            <script>
+                const ctx = canvas.getContext("2d")
+                ctx.strokeStyle = "black"
+                ctx.lineWidth = 6
+                ctx.lineCap = 'round'
+                var isdown = false
+                var x1
+                var y1
+                var zuobiao = []
+                var beifen = []
+                var beifenmax = 50
+                var dangqian = -1
+                canvas.onmousedown = e => {
+                    ctx.strokeStyle = color.value
+                    isdown = true
+                    x = e.clientX - canvas.getBoundingClientRect().left
+                    y = e.clientY - canvas.getBoundingClientRect().top
+                    drawto(x,y)
+                }
+
+                canvas.onmousemove = e => {
+                    if(isdown){
+                        x = e.clientX - canvas.getBoundingClientRect().left
+                        y = e.clientY - canvas.getBoundingClientRect().top
+                        drawto(x,y)
+                    }
+                }
+
+                canvas.onmouseup = e => {
+                    isdown = false
+                    x = e.clientX - canvas.getBoundingClientRect().left
+                    y = e.clientY - canvas.getBoundingClientRect().top
+                    zuobiao = []
+                    if (dangqian < beifenmax){
+                        dangqian += 1
+                    }else{
+                        beifen.shift()
+                    }
+                    beifen[dangqian] = canvas.toDataURL()
+                }
+
+                canvas.onmouseout = e => {
+                    isdown = false
+                    x = e.clientX - canvas.getBoundingClientRect().left
+                    y = e.clientY - canvas.getBoundingClientRect().top
+                    zuobiao = []
+                    if (dangqian < beifenmax){
+                        dangqian += 1
+                    }else{
+                        beifen.shift()
+                    }
+                    beifen[dangqian] = canvas.toDataURL()
+                }
+
+                function drawto(x, y) {
+                    zuobiao.push(x,y)
+                    ctx.beginPath()
+                    var newx
+                    var newy
+                    if(zuobiao.length < 6){
+                        ctx.arc(x, y, 0, 0, Math.PI * 2)
+                    }else if(zuobiao.length == 6){
+                        newx = (zuobiao[2] + zuobiao[4]) / 2
+                        newy = (zuobiao[3] + zuobiao[5]) / 2
+                        ctx.moveTo(zuobiao[0], zuobiao[1])
+                        ctx.quadraticCurveTo(zuobiao[2],zuobiao[3], newx, newy)
+                    }else if(zuobiao.length == 8){
+                        oldx = (zuobiao[2] + zuobiao[4]) / 2
+                        oldy = (zuobiao[3] + zuobiao[5]) / 2
+                        newx = (zuobiao[4] + zuobiao[6]) / 2
+                        newy = (zuobiao[5] + zuobiao[7]) / 2
+                        ctx.moveTo(oldx, oldy)
+                        ctx.quadraticCurveTo(zuobiao[4],zuobiao[5], newx, newy)
+                        zuobiao.splice(0,2)
+                    }
+                    ctx.stroke()
+                }
+
+                function chexiao(){
+                    if(dangqian > 0){
+                        dangqian -= 1
+                        var back = new Image()
+                        back.src = beifen[dangqian]
+                        back.onload = function(evt){
+                            qingkong()
+                            ctx.drawImage(back, 0, 0)
+                        }
+                    }
+                }
+
+                function qingkong(){
+                    ctx.clearRect(0,0,canvas.width,canvas.height)
+                }
+            </script>
+            <div style="float:left">
+                <br/><br/><br/>
+                <div id="bicu" style="float:left">笔粗：--■----------</div><br/>
+                颜色：<input id="color" type="color" /><br/>
+                <button onclick="chexiao()">撤销</button><br/>
+                <button onclick="qingkong()">清空</button><br/>
+                <button onclick="huawanle()">完成</button>
+                <script>
+                    var dianji = window.getSelection()
+                    var gang = "笔粗：-------------"
+                    bicu.onmouseup = e => {
+                        if(dianji.anchorOffset > 2){
+                            var cu = dianji.anchorOffset
+                            var newgang = gang.split('')
+                            newgang[cu]  = "■"
+                            bicu.innerHTML = newgang.join('')
+                            ctx.lineWidth = (cu - 2) * 2
+                        }
+                    }
+
+                    function huawanle(){
+                        ws.send(JSON.stringify({
+                        type:"huawanle",
+                        uid:uid,
+                        user:localStorage.getItem('username'),
+                        message:canvas.toDataURL()
                         }))
                     }
                 </script>
-                </dating>
-                <youxizhong>
-                    <canvas id="myCanvas" width="720" height="540" style="border:1px solid #c3c3c3;"></canvas>
-                </youxizhong>
+                </div>
             </div>
             
+            <div id="jieshufang" hidden>
+
+            </div>
+            <div id="right" style="float:left" hidden>
+                <wan id="wancheng"></wan><ren id="renshu"></ren>
+                <p id="jishi"></p>
+            </div>
         </div>
+
         
     </body>
 </html>
