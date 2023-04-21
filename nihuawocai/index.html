@@ -11,14 +11,26 @@
             canvas{
                 border:1px solid #c3c3c3;
             }
+            button.button1{
+                background-color: #ff9090;
+            }
+            button.button1:hover{
+                background-color: #ff4a4a;
+            }
+            button.button2{
+                background-color: #8fffa1;
+            }
+            button.button2:hover{
+                background-color: #00ff2a;
+            }
         </style>
     </head>
 
     <body style="background-color:#fafdff;font-size: 20px;">
 
             
-        <div id="liaotianlan" style="background-color:#ffffff;height:200px;width:260px;float:left">
-            <div style="height:200px;width:260px;float:left;overflow:auto;display:flex;flex-direction:column-reverse;">
+        <div id="liaotianlan" style="background-color:#ffffff;height:260px;width:260px;float:left">
+            <div style="height:260px;width:260px;float:left;overflow:auto;display:flex;flex-direction:column-reverse;">
                 <chat id="chat"></chat>
             </div>
             
@@ -67,28 +79,18 @@
                 var shunxu = [[]]
                 var hua = [[]]
                 var ren = [[]]
-                var dengdai = false
+                var dengdai = true
 
                 if(window.location.href.includes("https")){
-                    ws = new WebSocket('wss//:frp-fly.top:54283')
+                    ws = new WebSocket('wss://frp-fly.top:54283')
                 }else{
-                    ws = new WebSocket('ws://127.0.0.1:8000')
+                    ws = new WebSocket('ws://frp-fly.top:54283')
                 }
                 
                 ws.addEventListener('open',handleOpen,false);
                 ws.addEventListener('close',handleClose,false);
                 ws.addEventListener('error',handleError,false);
                 ws.addEventListener('message',handleMessage,false);
-
-                window.onbeforeunload = function(event){
-                    if(uid != null){
-                        ws.send(JSON.stringify({
-                        type:"exit",
-                        uid:uid,
-                        user:localStorage.getItem('username')
-                    }))
-                    }
-                }
 
                 function sendmsg(){
                     const msg = message.value;
@@ -103,6 +105,11 @@
                     }))
         
                     message.value = '';
+                }
+                function behost(){
+                    zonghuihe.removeAttribute("disabled")
+                    shijianbeilv.removeAttribute("disabled")
+                    startbutton.removeAttribute("hidden")
                 }
                 function handleOpen(){
                     console.log('WebSocket open');
@@ -130,22 +137,28 @@
                                 break
                             case "start":
                                 console.log("start?")
+
+                                var wanj = ""
+                                json1.wanjia.forEach(wan => {
+                                    wanj = wanj + wan + "<br/>"
+                                });
+                                wanjia.innerHTML = "<p>玩家：<br/>" + wanj + "</p>"
+                                dengdai = false
+                                chuti.value = ''
+                                uid = json1.wanjia.indexOf(localStorage.getItem('username'))
                                 shunxu = json1.message
                                 zongshijian = json1.zongshijian
                                 chutizhong.removeAttribute("hidden")
                                 right.removeAttribute("hidden")
                                 dating.hidden = 'hidden'
+                                jieshufang.hidden = 'hidden'
                                 jishi.innerHTML = zongshijian * 0.3
                                 daojishi = setInterval(() => {
                                     jishi.innerHTML = Math.floor(jishi.innerHTML) - 1
                                 }, 1000);
                                 break
-                            case "username":
-                                if(json1.user == localStorage.getItem('username')){
-                                    uid = json1.message
-                                    console.log("uid == " + uid)
-                                    dating.removeAttribute("hidden")
-                                }
+                            case "join":
+                                dating.removeAttribute("hidden")
                                 var wanj = ""
                                 json1.wanjia.forEach(wan => {
                                     wanj = wanj + wan + "<br/>"
@@ -153,52 +166,74 @@
                                 wanjia.innerHTML = "<p>玩家：<br/>" + wanj + "</p>"
                                 break
                             case "host":
-                                zonghuihe.removeAttribute("disabled")
-                                shijianbeilv.removeAttribute("disabled")
-                                startbutton.removeAttribute("hidden")
+                                if(json1.host == localStorage.getItem('username')){
+                                    zonghuihe.removeAttribute("disabled")
+                                    shijianbeilv.removeAttribute("disabled")
+                                    startbutton.removeAttribute("hidden")
+                                }
+                                
                                 break
                             case "chuti":
                             case "huawanle":
                             case "caice":
                                 wancheng.innerHTML = json1.message[0] + " / "
                                 renshu.innerHTML = json1.message[1]
+                                if(hua[json1.message[2]] == undefined){
+                                    hua[json1.message[2]] = []
+                                }
+                                hua[json1.message[2]][json1.message[3]] = json1.message[4]
                                 break
                             case "draw":
-                                clearInterval(daojishi)
-                                hua[json1.huihe - 2] = json1.message
-                                ren[json1.huihe - 2] = json1.ren
-                                var xinweizhi = shunxu[json1.huihe - 1].indexOf(uid)
-                                timu.innerHTML = json1.message[xinweizhi]
-                                chutizhong.hidden = 'hidden'
-                                caicezhong.hidden = 'hidden'
-                                huahuazhong.removeAttribute("hidden")
-                                chuti.value = ""
-                                caice.value = ""
-                                wancheng.innerHTML = 0 + " / "
-                                jishi.innerHTML = zongshijian
-                                daojishi = setInterval(() => {
-                                    jishi.innerHTML = Math.floor(jishi.innerHTML) - 1
-                                }, 1000);
+                                if(!dengdai){
+                                    if(hua[json1.message[2]] == undefined){
+                                        hua[json1.message[2]] = []
+                                    }
+                                    hua[json1.message[2]][json1.message[3]] = json1.message[4]
+                                    clearInterval(daojishi)
+                                    ren[json1.huihe - 2] = json1.ren
+                                    var xinweizhi = shunxu[json1.huihe - 1].indexOf(uid)
+                                    timu.innerHTML = hua[json1.huihe - 2][xinweizhi]
+                                    chutizhong.hidden = 'hidden'
+                                    caicezhong.hidden = 'hidden'
+                                    huahuazhong.removeAttribute("hidden")
+                                    chuti.value = ""
+                                    caice.value = ""
+                                    wancheng.innerHTML = 0 + " / "
+                                    jishi.innerHTML = zongshijian
+                                    daojishi = setInterval(() => {
+                                        jishi.innerHTML = Math.floor(jishi.innerHTML) - 1
+                                    }, 1000);
+                                }
+                                
                                 break
                             case "cai":
-                                clearInterval(daojishi)
-                                hua[json1.huihe - 2] = json1.message
-                                ren[json1.huihe - 2] = json1.ren
-                                var xinweizhi = shunxu[json1.huihe - 1].indexOf(uid)
-                                huati.src = json1.message[xinweizhi]
-                                huahuazhong.hidden = 'hidden'
-                                caicezhong.removeAttribute("hidden")
-                                qingkong()
-                                wancheng.innerHTML = 0 + " / "
-                                jishi.innerHTML = zongshijian * 0.3
-                                daojishi = setInterval(() => {
-                                    jishi.innerHTML = Math.floor(jishi.innerHTML) - 1
-                                }, 1000);
+                                if(!dengdai){
+                                    if(hua[json1.message[2]] == undefined){
+                                        hua[json1.message[2]] = []
+                                    }
+                                    hua[json1.message[2]][json1.message[3]] = json1.message[4]
+                                    clearInterval(daojishi)
+                                    ren[json1.huihe - 2] = json1.ren
+                                    var xinweizhi = shunxu[json1.huihe - 1].indexOf(uid)
+                                    huati.src = hua[json1.huihe - 2][xinweizhi]
+                                    huahuazhong.hidden = 'hidden'
+                                    caicezhong.removeAttribute("hidden")
+                                    qingkong()
+                                    wancheng.innerHTML = 0 + " / "
+                                    jishi.innerHTML = zongshijian * 0.3
+                                    daojishi = setInterval(() => {
+                                        jishi.innerHTML = Math.floor(jishi.innerHTML) - 1
+                                    }, 1000);
+                                }
+                                
                                 break
                             case "end":
                                 clearInterval(daojishi)
-                                hua[json1.huihe - 2] = json1.message
                                 ren[json1.huihe - 2] = json1.ren
+                                if(hua[json1.message[2]] == undefined){
+                                    hua[json1.message[2]] = []
+                                }
+                                hua[json1.message[2]][json1.message[3]] = json1.message[4]
                                 wancheng.innerHTML = renshu.innerHTML + " / "
                                 chuti.value = ""
                                 caice.value = ""
@@ -210,21 +245,37 @@
                                 jieshufang.removeAttribute("hidden")
                                 xiayige(0, 0, shunxu.length, shunxu[0].length)
                                 break
-                            case "askforin":
-                                if (json1.user == localStorage.getItem('username') && uid != null){
-                                    ws.send(JSON.stringify({
-                                        type:"disagree"
+                            case "askforstart":
+                                ws.send(JSON.stringify({
+                                        type:"start",
+                                        user:localStorage.getItem('username')
                                     }))
-                                }else{
-                                    ws.send(JSON.stringify({
-                                        type:"agree"
-                                    }))
-                                }
                                 break
-                            case "disagree":
+                            case "dengdai":
                                 dengdai = true
-                            case "agree":
-                                
+                                addStrToChat("游戏正在进行中，请等待游戏结束")
+                                break
+                            case "jieshuchuti":
+                                fchuti()
+                                break
+                            case "jieshuhuahua":
+                                huawanle()
+                                break
+                            case "jieshucaice":
+                                fcaice()
+                                break
+                            case "backtogame":
+                                if(localStorage.getItem('username') == json1.user){
+                                    dengdai = false
+                                    uid = json1.uid
+                                    shunxu = json1.shunxu
+                                    if(json1.now = "backtodraw"){
+                                        huahuazhong.removeAttribute("hidden")
+                                    }else if(json1.now = "backtocai"){
+                                        caicezhong.removeAttribute("hidden")
+                                    }
+                                    addStrToChat("已回到游戏，但之前的内容无法加载")
+                                }
                                 break
 
                         }
@@ -232,6 +283,7 @@
                     
                 }
                 function xiayige(i, j, imax, jmax){
+                    
                     if (i % 2 == 0){
                         var newp = document.createElement('p')
                         newp.innerHTML = ren[i][j] + "：" + hua[i][j]
@@ -245,10 +297,13 @@
                         newimg.style.width = "300px"
                         jieshufang.appendChild(newimg)
                     }
+                    jieshufang.scrollTop = jieshufang.scrollHeight
                     if (i < imax - 1){
-                        setTimeout(() => {xiayige(i + 1, j, imax, jmax)}, 2000);
+                        setTimeout(() => {xiayige(i + 1, j, imax, jmax)}, 3000);
                     }else if(j < jmax - 1){
-                        setTimeout(() => {xiayige(0, j + 1, imax, jmax)}, 10000);
+                        setTimeout(() => {xiayige(0, j + 1, imax, jmax)}, 5000);
+                    }else{
+                        bfanhui.removeAttribute("hidden")
                     }
                 }
                 function addToChatEnd(json1){
@@ -269,6 +324,10 @@
 
 
         <div id="in" style="background-color:#ffffff;width:1100px;float:left;margin-top:50px;">
+            <div id="right" style="float:right" hidden>
+                <wan id="wancheng"></wan><ren id="renshu"></ren>
+                <p id="jishi"></p>
+            </div>
             <dating id="dating" hidden>
             <p>大厅</p>
                 <p>回合数：<input type="text" id="zonghuihe" placeholder="等于人数" list="huihe" disabled/>
@@ -283,15 +342,15 @@
                     <option value="1">1</option>
                     <option value="1.1">1.1</option>
                 </datalist>
-                <button id="startbutton" onclick="askforstart()">开始</button><br/>
+                <button id="startbutton" onclick="askforstart()" hidden>开始</button><br/>
             <script>
-                function askforstart(){             //以后记得给按钮加上hidden
+                function askforstart(){
                     var beilv = shijianbeilv.value
                     if(shijianbeilv.value == ""){
                         beilv = 1
                     }
                     ws.send(JSON.stringify({
-                        type:"start",
+                        type:"askforstart",
                         uid:0,
                         message:[],
                         zonghuihe:Math.floor(zonghuihe.value),
@@ -321,7 +380,7 @@
                 <p>描述出图中的内容</p>
                 <input type="text" id="caice" placeholder=""/>
                 <button id="bcaice" onclick="fcaice()">确定</button>
-                <img id="huati" src="" alt="图片加载中"></img>
+                <img id="huati" src="" alt="图片已丢失"></img>
                 <script>
                     function fcaice(){
                         ws.send(JSON.stringify({
@@ -335,7 +394,7 @@
                     }
                 </script>
             </div>
-            <div id="huahuazhong" hidden>
+            <div id="huahuazhong" hidden>  <!--隐藏！！！-->
             <div style="width:725px;float:left;">
             <p>开始作画吧</p>
             <p id="timu">null</p>
@@ -353,47 +412,54 @@
                 var beifen = []
                 var beifenmax = 50
                 var dangqian = -1
-                canvas.onmousedown = e => {
-                    ctx.strokeStyle = color.value
-                    isdown = true
-                    x = e.clientX - canvas.getBoundingClientRect().left
-                    y = e.clientY - canvas.getBoundingClientRect().top
-                    drawto(x,y)
-                }
-
-                canvas.onmousemove = e => {
-                    if(isdown){
+                
+                if(!navigator.userAgent.includes("Mobile")){
+                    
+                    canvas.onmousedown = e => {
+                        ctx.strokeStyle = color.value
+                        isdown = true
                         x = e.clientX - canvas.getBoundingClientRect().left
                         y = e.clientY - canvas.getBoundingClientRect().top
                         drawto(x,y)
                     }
-                }
 
-                canvas.onmouseup = e => {
-                    isdown = false
-                    x = e.clientX - canvas.getBoundingClientRect().left
-                    y = e.clientY - canvas.getBoundingClientRect().top
-                    zuobiao = []
-                    if (dangqian < beifenmax){
-                        dangqian += 1
-                    }else{
-                        beifen.shift()
+                    canvas.onmousemove = e => {
+                        if(isdown){
+                            x = e.clientX - canvas.getBoundingClientRect().left
+                            y = e.clientY - canvas.getBoundingClientRect().top
+                            drawto(x,y)
+                        }
                     }
-                    beifen[dangqian] = canvas.toDataURL()
-                }
 
-                canvas.onmouseout = e => {
-                    isdown = false
-                    x = e.clientX - canvas.getBoundingClientRect().left
-                    y = e.clientY - canvas.getBoundingClientRect().top
-                    zuobiao = []
-                    if (dangqian < beifenmax){
-                        dangqian += 1
-                    }else{
-                        beifen.shift()
+                    canvas.onmouseup = e => {
+                        isdown = false
+                        x = e.clientX - canvas.getBoundingClientRect().left
+                        y = e.clientY - canvas.getBoundingClientRect().top
+                        zuobiao = []
+                        if (dangqian < beifenmax){
+                            dangqian += 1
+                        }else{
+                            beifen.shift()
+                        }
+                        beifen[dangqian] = canvas.toDataURL()
                     }
-                    beifen[dangqian] = canvas.toDataURL()
+
+                    canvas.onmouseout = canvas.onmouseup
+                }else{
+                    addStrToChat("是手机")
+                    canvas.ontouchstart = e => {
+                        addStrToChat(e.clientX - canvas.getBoundingClientRect().left)
+                        addStrToChat(e.clientY - canvas.getBoundingClientRect().top)
+                        addStrToChat("点了！")
+                    }
+                    canvas.ontouchmove = e => {
+                        addStrToChat("移动了！")
+                    }
+                    canvas.ontouchend = e => {
+                        addStrToChat("停止了！")
+                    }
                 }
+                
 
                 function drawto(x, y) {
                     zuobiao.push(x,y)
@@ -438,10 +504,11 @@
             <div style="float:left">
                 <br/><br/><br/>
                 <div id="bicu" style="float:left">笔粗：--■----------</div><br/>
-                颜色：<input id="color" type="color" /><br/>
-                <button onclick="chexiao()">撤销</button><br/>
-                <button onclick="qingkong()">清空</button><br/>
-                <button onclick="huawanle()">完成</button>
+                <p>颜色：<input id="color" type="color" /></p>
+                <p><button style="width: 50px;height: 50px;" onclick="chexiao()">撤销</button></p>
+                <p><button class="button1" style="width: 50px;" onclick="qingkong()">清空</button></p>
+                <p><button id="bhuawan" class="button2" style="width: 50px;height: 50px;" onclick="huawanle()">完成</button></p>
+                
                 <script>
                     var dianji = window.getSelection()
                     var gang = "笔粗：-------------"
@@ -454,26 +521,32 @@
                             ctx.lineWidth = (cu - 2) * 2
                         }
                     }
-
+                    
                     function huawanle(){
                         ws.send(JSON.stringify({
-                        type:"huawanle",
-                        uid:uid,
-                        user:localStorage.getItem('username'),
-                        message:canvas.toDataURL()
+                            type:"huawanle",
+                            uid:uid,
+                            user:localStorage.getItem('username'),
+                            message:canvas.toDataURL()
                         }))
+                        bhuawan.innerHTML = "发送中.."
+                        setTimeout(() => {bhuawan.innerHTML = "完成"}, 5000);
                     }
                 </script>
                 </div>
             </div>
             
-            <div id="jieshufang" hidden>
+            <div id="jieshufang" style="width:550px;height:680px;float:left;overflow:auto;display:flex;flex-direction: column;" hidden>
 
             </div>
-            <div id="right" style="float:left" hidden>
-                <wan id="wancheng"></wan><ren id="renshu"></ren>
-                <p id="jishi"></p>
-            </div>
+            <button id="bfanhui" onclick="fanhuidating()" hidden>返回大厅</button>
+            <script>
+                function fanhuidating(){
+                    jieshufang.hidden = 'hidden'
+                    bfanhui.hidden = 'hidden'
+                    dating.removeAttribute("hidden")
+                }
+            </script>
         </div>
 
         
