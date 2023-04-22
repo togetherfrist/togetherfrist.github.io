@@ -34,7 +34,7 @@
                 <chat id="chat"></chat>
             </div>
             
-            <input type="text" id="username" placeholder="起个名字" onkeydown="enterkey1()"/>
+            <input type="text" id="username" placeholder="起个名字来加入游戏" onkeydown="enterkey1()"/>
             <button id="setname" onclick="setusername()">确认</button><br/>
             
             <script>
@@ -56,6 +56,11 @@
                     username.hidden = 'hidden';
                     setname.hidden = 'hidden';
                 }
+
+                if(localStorage.getItem('username') != null){
+                    username.value = localStorage.getItem('username')
+                }
+
 
             </script>
 
@@ -80,9 +85,11 @@
                 var hua = [[]]
                 var ren = [[]]
                 var dengdai = true
+                var isxiangsuhua = false
+                var ischanged  = true
 
                 if(window.location.href.includes("https")){
-                    ws = new WebSocket('wss://frp-fly.top:54283')
+                    //ws = new WebSocket('wss://frp-fly.top:54283')
                     addStrToChat("不支持https协议！")
                 }else{
                     ws = new WebSocket('ws://frp-fly.top:54283')
@@ -110,15 +117,31 @@
                 function behost(){
                     zonghuihe.removeAttribute("disabled")
                     shijianbeilv.removeAttribute("disabled")
+                    moshi.removeAttribute("disabled")
                     startbutton.removeAttribute("hidden")
                 }
                 function handleOpen(){
                     console.log('WebSocket open');
                     addStrToChat("已连接")
+                    if(localStorage.getItem('username') != null){
+                        setusername()
+                    }
                 }
                 function handleClose(){
                     console.log('WebSocket close');
                     addStrToChat("连接已终止")
+                    var newb = document.createElement('button')
+                    newb.innerHTML = "不刷新重连"
+                    newb.onclick = function(){
+                        ws = new WebSocket('ws://frp-fly.top:54283')
+                        ws.addEventListener('open',handleOpen,false);
+                        ws.addEventListener('close',handleClose,false);
+                        ws.addEventListener('error',handleError,false);
+                        ws.addEventListener('message',handleMessage,false);
+                        newb.hidden = 'hidden'
+                    }
+                    newb.className = "button2"
+                    chat.appendChild(newb)
                 }
                 function handleError(){
                     console.log('WebSocket error');
@@ -137,8 +160,13 @@
                                 addToChatEnd(json1)
                                 break
                             case "start":
-                                console.log("start?")
+                                shunxu = [[]]
+                                hua = [[]]
+                                ren = [[]]
 
+                                console.log("start?")
+                                isxiangsuhua = json1.isxiangsuhua
+                                console.log(json1.isxiangsuhua)
                                 var wanj = ""
                                 json1.wanjia.forEach(wan => {
                                     wanj = wanj + wan + "<br/>"
@@ -169,9 +197,7 @@
                                 break
                             case "host":
                                 if(json1.host == localStorage.getItem('username')){
-                                    zonghuihe.removeAttribute("disabled")
-                                    shijianbeilv.removeAttribute("disabled")
-                                    startbutton.removeAttribute("hidden")
+                                    behost()
                                 }
                                 
                                 break
@@ -186,7 +212,8 @@
                                 hua[json1.message[2]][json1.message[3]] = json1.message[4]
                                 break
                             case "draw":
-                                if(!dengdai){
+                                if(!dengdai){                            
+                                    
                                     if(hua[json1.message[2]] == undefined){
                                         hua[json1.message[2]] = []
                                     }
@@ -198,6 +225,20 @@
                                     chutizhong.hidden = 'hidden'
                                     caicezhong.hidden = 'hidden'
                                     huahuazhong.removeAttribute("hidden")
+                                    if(isxiangsuhua){
+                                        canvas2.removeAttribute("hidden")
+                                        zhanshijieguo.removeAttribute("hidden")
+                                        canvas.width = 120
+                                        canvas.height = 80
+                                    }else{
+                                        canvas2.hidden = 'hidden'
+                                        zhanshijieguo.hidden = 'hidden'
+                                        canvas.width = 720
+                                        canvas.height = 480
+                                        ctx.strokeStyle = "black"
+                                        ctx.lineWidth = 6
+                                        ctx.lineCap = 'round'
+                                    }
                                     chuti.value = ""
                                     caice.value = ""
                                     wancheng.innerHTML = 0 + " / "
@@ -254,8 +295,10 @@
                                     }))
                                 break
                             case "dengdai":
-                                dengdai = true
-                                addStrToChat("游戏正在进行中，请等待游戏结束")
+                                if(json1.user == localStorage.getItem('username')){
+                                    dengdai = true
+                                    addStrToChat("游戏正在进行中，请等待游戏结束")
+                                }
                                 break
                             case "jieshuchuti":
                                 fchuti()
@@ -276,7 +319,22 @@
                                     }else if(json1.now = "backtocai"){
                                         caicezhong.removeAttribute("hidden")
                                     }
-                                    addStrToChat("已回到游戏，但之前的内容无法加载")
+                                    isxiangsuhua = json1.isxiangsuhua
+                                    if(isxiangsuhua){
+                                        canvas2.removeAttribute("hidden")
+                                        zhanshijieguo.removeAttribute("hidden")
+                                        canvas.width = 120
+                                        canvas.height = 80
+                                    }else{
+                                        canvas2.hidden = 'hidden'
+                                        zhanshijieguo.hidden = 'hidden'
+                                        canvas.width = 720
+                                        canvas.height = 480
+                                        ctx.strokeStyle = "black"
+                                        ctx.lineWidth = 6
+                                        ctx.lineCap = 'round'
+                                    }
+                                    addStrToChat("已返回游戏")
                                 }
                                 break
 
@@ -296,8 +354,12 @@
                         newp.innerHTML = ren[i][j] + "："
                         jieshufang.appendChild(newp)
                         var newimg = document.createElement('img')
+                        if(isxiangsuhua){
+                            newimg.style.width = "120px"
+                        }else{
+                            newimg.style.width = "240px"
+                        }
                         newimg.src = hua[i][j]
-                        newimg.style.width = "300px"
                         jieshufang.appendChild(newimg)
                         newimg.onload = function(){
                             jieshufang.scrollTop = jieshufang.scrollHeight
@@ -306,6 +368,11 @@
                     if (i < imax - 1){
                         setTimeout(() => {xiayige(i + 1, j, imax, jmax)}, 3000);
                     }else if(j < jmax - 1){
+                        setTimeout(() => {
+                            var newp = document.createElement('p')
+                            newp.innerHTML = "-------------------------"
+                            jieshufang.appendChild(newp)
+                        }, 2000);
                         setTimeout(() => {
                             xiayige(0, j + 1, imax, jmax)
                         }, 5000);
@@ -355,6 +422,10 @@
                     <option value="1">1</option>
                     <option value="1.1">1.1</option>
                 </datalist>
+                <p>模式：<input type="text" id="moshi" placeholder="" list="moshilist" disabled/></p>
+                <datalist id="moshilist">
+                    <option value="像素画">像素画</option>
+                </datalist>
                 <button id="startbutton" onclick="askforstart()" hidden>开始</button><br/>
             <script>
                 function askforstart(){
@@ -367,7 +438,8 @@
                         uid:0,
                         message:[],
                         zonghuihe:Math.floor(zonghuihe.value),
-                        shijianbeilv:Number(beilv) 
+                        shijianbeilv:Number(beilv),
+                        isxiangsuhua:(moshi.value == "像素画"),
                     }))
                 }
             </script>
@@ -382,7 +454,8 @@
                             type:"chuti",
                             uid:uid,
                             user:localStorage.getItem('username'),
-                            message:chuti.value
+                            message:chuti.value,
+                            ischanged:true
                         }))
                         bchuti.innerHTML = "已确定！"
                         setTimeout(() => {bchuti.innerHTML = "确定"}, 1000);
@@ -392,7 +465,7 @@
             <div id="caicezhong" style="width:725px;float:left;" hidden>
                 <p>描述出图中的内容</p>
                 <input type="text" id="caice" placeholder=""/>
-                <button id="bcaice" onclick="fcaice()">确定</button>
+                <button id="bcaice" onclick="fcaice()">确定</button><br>
                 <img id="huati" src="" alt="图片已丢失"></img>
                 <script>
                     function fcaice(){
@@ -400,18 +473,21 @@
                             type:"caice",
                             uid:uid,
                             user:localStorage.getItem('username'),
-                            message:caice.value
+                            message:caice.value,
+                            ischanged:true
                         }))
                         bcaice.innerHTML = "已确定！"
                         setTimeout(() => {bcaice.innerHTML = "确定"}, 1000);
                     }
                 </script>
             </div>
-            <div id="huahuazhong" hidden>
+            <div id="huahuazhong" hidden>   <!--hidden!!!!-->
             <div style="width:725px;float:left;">
             <p>开始作画吧</p>
             <p id="timu">null</p>
-            <canvas id="canvas" width="720" height="500"></canvas>
+            <canvas id="canvas2" width="720px" height="480px" hidden></canvas>
+            <show id="zhanshijieguo" hidden>展示结果：</show>
+            <canvas id="canvas" width="720px" height="480px"></canvas>
             </div>
             <script>
                 const ctx = canvas.getContext("2d")
@@ -419,6 +495,7 @@
                 ctx.lineWidth = 6
                 ctx.lineCap = 'round'
                 var isdown = false
+                var isdown2 = false
                 var x1
                 var y1
                 var zuobiao = []
@@ -448,13 +525,16 @@
                         isdown = false
                         var x = e.clientX - canvas.getBoundingClientRect().left
                         var y = e.clientY - canvas.getBoundingClientRect().top
-                        zuobiao = []
-                        if (dangqian < beifenmax){
-                            dangqian += 1
-                        }else{
-                            beifen.shift()
+                        if(!isxiangsuhua){
+                            zuobiao = []
+                            if (dangqian < beifenmax){
+                                dangqian += 1
+                            }else{
+                                beifen.shift()
+                            }
+                            beifen[dangqian] = canvas.toDataURL()
                         }
-                        beifen[dangqian] = canvas.toDataURL()
+                        
                     }
 
                     canvas.onmouseout = canvas.onmouseup
@@ -462,74 +542,171 @@
                     canvas.ontouchstart = e => {
                         isdown = true
                         ctx.strokeStyle = color.value
-                        var canvasXY = canvas.getBoundingClientRect()
-                        var x = e.changedTouches[0].clientX - canvasXY.left
-                        var y = e.changedTouches[0].clientY - canvasXY.top
+                        var x = e.changedTouches[0].clientX - canvas.getBoundingClientRect().left
+                        var y = e.changedTouches[0].clientY - canvas.getBoundingClientRect().top
                         drawto(x,y)
-                        
                     }
                     canvas.ontouchmove = e => {
-                        var canvasXY = canvas.getBoundingClientRect()
-                        var x = e.changedTouches[0].clientX - canvasXY.left
-                        var y = e.changedTouches[0].clientY - canvasXY.top
-                        drawto(x,y)
-                        e.preventDefault()
+                        if(isdown){
+                            var x = e.changedTouches[0].clientX - canvas.getBoundingClientRect().left
+                            var y = e.changedTouches[0].clientY - canvas.getBoundingClientRect().top
+                            drawto(x,y)
+                            e.preventDefault()
+                        }
                     }
                     canvas.ontouchend = e => {
                         isdown = false
-                        var canvasXY = canvas.getBoundingClientRect()
-                        var x = e.changedTouches[0].clientX - canvasXY.left
-                        var y = e.changedTouches[0].clientY - canvasXY.top
+                        var x = e.changedTouches[0].clientX - canvas.getBoundingClientRect().left
+                        var y = e.changedTouches[0].clientY - canvas.getBoundingClientRect().top
                         zuobiao = []
-                        if (dangqian < beifenmax){
-                            dangqian += 1
-                        }else{
-                            beifen.shift()
+                        if(!isxiangsuhua){
+                            zuobiao = []
+                            if (dangqian < beifenmax){
+                                dangqian += 1
+                            }else{
+                                beifen.shift()
+                            }
+                            beifen[dangqian] = canvas.toDataURL()
                         }
-                        beifen[dangqian] = canvas.toDataURL()
                     }
                 }
                 
 
                 function drawto(x, y) {
-                    zuobiao.push(x,y)
-                    ctx.beginPath()
-                    var newx
-                    var newy
-                    if(zuobiao.length < 6){
-                        ctx.arc(x, y, 0, 0, Math.PI * 2)
-                    }else if(zuobiao.length == 6){
-                        newx = (zuobiao[2] + zuobiao[4]) / 2
-                        newy = (zuobiao[3] + zuobiao[5]) / 2
-                        ctx.moveTo(zuobiao[0], zuobiao[1])
-                        ctx.quadraticCurveTo(zuobiao[2],zuobiao[3], newx, newy)
-                    }else if(zuobiao.length == 8){
-                        oldx = (zuobiao[2] + zuobiao[4]) / 2
-                        oldy = (zuobiao[3] + zuobiao[5]) / 2
-                        newx = (zuobiao[4] + zuobiao[6]) / 2
-                        newy = (zuobiao[5] + zuobiao[7]) / 2
-                        ctx.moveTo(oldx, oldy)
-                        ctx.quadraticCurveTo(zuobiao[4],zuobiao[5], newx, newy)
-                        zuobiao.splice(0,2)
+                    if(!isxiangsuhua){
+                        ischanged = true
+                        zuobiao.push(x,y)
+                        ctx.beginPath()
+                        var newx
+                        var newy
+                        if(zuobiao.length < 6){
+                            ctx.arc(x, y, 0, 0, Math.PI * 2)
+                        }else if(zuobiao.length == 6){
+                            newx = (zuobiao[2] + zuobiao[4]) / 2
+                            newy = (zuobiao[3] + zuobiao[5]) / 2
+                            ctx.moveTo(zuobiao[0], zuobiao[1])
+                            ctx.quadraticCurveTo(zuobiao[2],zuobiao[3], newx, newy)
+                        }else if(zuobiao.length == 8){
+                            oldx = (zuobiao[2] + zuobiao[4]) / 2
+                            oldy = (zuobiao[3] + zuobiao[5]) / 2
+                            newx = (zuobiao[4] + zuobiao[6]) / 2
+                            newy = (zuobiao[5] + zuobiao[7]) / 2
+                            ctx.moveTo(oldx, oldy)
+                            ctx.quadraticCurveTo(zuobiao[4],zuobiao[5], newx, newy)
+                            zuobiao.splice(0,2)
+                        }
+                        ctx.stroke()
                     }
-                    ctx.stroke()
+                    
                 }
 
                 function chexiao(){
+                    ischanged = true
                     if(dangqian > 0){
                         dangqian -= 1
                         var back = new Image()
                         back.src = beifen[dangqian]
                         back.onload = function(evt){
                             qingkong()
-                            ctx.drawImage(back, 0, 0)
+                            if(isxiangsuhua){
+                                ctx2.drawImage(back, 0, 0)
+                                ctx.clearRect(0,0,canvas.width,canvas.height)
+                                ctx.drawImage(canvas2,0,0,canvas.width,canvas.height)
+                            }
+                            else{
+                                ctx.drawImage(back, 0, 0)
+                            }
+                            
                         }
                     }
                 }
 
                 function qingkong(){
-                    ctx.clearRect(0,0,canvas.width,canvas.height)
+                    if(isxiangsuhua){
+                        ctx2.clearRect(0,0,canvas2.width,canvas2.height)
+                        ctx.clearRect(0,0,canvas.width,canvas.height)
+                        ctx.drawImage(canvas2,0,0,canvas.width,canvas.height)
+                    }
+                    else{
+                        ctx.clearRect(0,0,canvas.width,canvas.height)
+                    }
                 }
+
+                //canvas2-------------------------------------------------------------
+
+                const ctx2 = canvas2.getContext("2d")
+                ctx2.lineWidth = 0
+                ctx2.fillStyle = "black"
+
+                if(!navigator.userAgent.includes("Mobile")){
+                    
+                    canvas2.onmousedown = e => {
+                        ctx2.fillStyle = color.value
+                        isdown2 = true
+                        var x = e.clientX - canvas2.getBoundingClientRect().left
+                        var y = e.clientY - canvas2.getBoundingClientRect().top
+                        drawto2(x,y)
+                    }
+
+                    canvas2.onmousemove = e => {
+                        if(isdown2){
+                            var x = e.clientX - canvas2.getBoundingClientRect().left
+                            var y = e.clientY - canvas2.getBoundingClientRect().top
+                            drawto2(x,y)
+                        }
+                    }
+
+                    canvas2.onmouseup = e => {
+                        isdown2 = false
+                        var x = e.clientX - canvas2.getBoundingClientRect().left
+                        var y = e.clientY - canvas2.getBoundingClientRect().top
+                        if (dangqian < beifenmax){
+                            dangqian += 1
+                        }else{
+                            beifen.shift()
+                        }
+                        beifen[dangqian] = canvas2.toDataURL()
+                    }
+
+                    canvas2.onmouseout = canvas2.onmouseup
+                }else{
+
+                    canvas2.ontouchstart = e => {
+                        isdown2 = true
+                        ctx2.fillStyle = color.value
+                        var x = e.changedTouches[0].clientX - canvas2.getBoundingClientRect().left
+                        var y = e.changedTouches[0].clientY - canvas2.getBoundingClientRect().top
+                        drawto2(x,y)
+                    }
+                    canvas2.ontouchmove = e => {
+                        if(isdown2){
+                            var x = e.changedTouches[0].clientX - canvas2.getBoundingClientRect().left
+                            var y = e.changedTouches[0].clientY - canvas2.getBoundingClientRect().top
+                            drawto2(x,y)
+                            e.preventDefault()
+                        }
+                    }
+                    canvas2.ontouchend = e => {
+                        isdown2 = false
+                        var x = e.changedTouches[0].clientX - canvas2.getBoundingClientRect().left
+                        var y = e.changedTouches[0].clientY - canvas2.getBoundingClientRect().top
+                        if (dangqian < beifenmax){
+                            dangqian += 1
+                        }else{
+                            beifen.shift()
+                        }
+                        beifen[dangqian] = canvas2.toDataURL()
+                    }
+                }
+
+                function drawto2(x, y) {
+                    ischanged = true
+                    var da1 = 30
+                    ctx2.fillRect(Math.floor(x / da1) * da1, Math.floor(y / da1) * da1, da1, da1)
+                    ctx.clearRect(0,0,canvas.width,canvas.height)
+                    ctx.drawImage(canvas2,0,0,canvas.width,canvas.height)
+                }
+
             </script>
             <div style="float:left">
                 <br/><br/><br/>
@@ -553,14 +730,19 @@
                     }
                     
                     function huawanle(){
-                        ws.send(JSON.stringify({
-                            type:"huawanle",
-                            uid:uid,
-                            user:localStorage.getItem('username'),
-                            message:canvas.toDataURL()
-                        }))
-                        bhuawan.innerHTML = "发送中.."
-                        setTimeout(() => {bhuawan.innerHTML = "完成"}, 5000);
+                        if(ischanged){
+                            ws.send(JSON.stringify({
+                                type:"huawanle",
+                                uid:uid,
+                                user:localStorage.getItem('username'),
+                                message:canvas.toDataURL(),
+                                ischanged:ischanged
+                            }))
+                            bhuawan.innerHTML = "已发送！"
+                            ischanged = false
+                            setTimeout(() => {bhuawan.innerHTML = "完成"}, 1000);
+                        }
+                        
                     }
                 </script>
                 </div>

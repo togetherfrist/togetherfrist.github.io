@@ -19,6 +19,7 @@ const ws = require('ws');
     var isingame = false
     var host = null
     var timeout
+    var isxiangsuhua
 
     function bindEvent() {
         server.on('open',handleOpen);
@@ -76,6 +77,7 @@ const ws = require('ws');
                 }
                 console.log("this zonghuihe == " + zonghuihe)
                 zongshijian = json1.shijianbeilv * 150
+                isxiangsuhua = json1.isxiangsuhua
                 break
             case "start":
                 renshu = server.clients.size
@@ -94,6 +96,7 @@ const ws = require('ws');
                     huihe = 1
                     hua = [[]]
                     shunxu = [[]]
+                    ren = [[]]
                     for(i = 0; i < renshu; i++){
                         shunxu[i] = []
                         for(j = 0; j < renshu; j++){
@@ -123,6 +126,7 @@ const ws = require('ws');
                     json1.message = shunxu
                     json1.zongshijian = zongshijian
                     json1.wanjia = wanjia
+                    json1.isxiangsuhua = isxiangsuhua
                     console.log(json1)
                     sendjson(json1)
                     timeout = setTimeout(() => {
@@ -147,6 +151,7 @@ const ws = require('ws');
                         json1.shunxu = shunxu
                         json1.now = ["backtodraw","backtocai"][huihe % 2]
                         json1.wanjia = wanjia
+                        json1.isxiangsuhua = isxiangsuhua
                         uidlist[newuid] = newuid
                         sendjson(json1)
                     }else{
@@ -179,15 +184,22 @@ const ws = require('ws');
             case "huawanle":
             case "caice":
                 if(["huawanle","caice"][huihe % 2] == json1.type || ["huawanle","chuti"][huihe % 2] == json1.type){
+                    console.log(wancheng)
+                    console.log(server.clients.size - dengdairenshu)
                     var weizhi = shunxu[huihe - 1].indexOf(json1.uid)
                     if(hua[huihe - 1] == undefined){
                         hua[huihe - 1] = []
                         ren[huihe - 1] = []
                     }
                     if(hua[huihe - 1][weizhi] == undefined){
+                        console.log("someone finished")
                         wancheng += 1
+                        hua[huihe - 1][weizhi] = 0
+                        console.log(wancheng)
+                    }else{
+                        console.log("更改了画")
                     }
-                    hua[huihe - 1][weizhi] = json1.message
+                    
                     ren[huihe - 1][weizhi] = json1.user
                     if(wancheng >= server.clients.size - dengdairenshu){
                         clearTimeout(timeout)
@@ -219,9 +231,8 @@ const ws = require('ws');
                     }
                     
                     sendjson(json1)
-                    break
                 }
-                
+                break
         }
     }
     function randbelow(int){
