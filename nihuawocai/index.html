@@ -83,6 +83,7 @@
 
                 if(window.location.href.includes("https")){
                     ws = new WebSocket('wss://frp-fly.top:54283')
+                    addStrToChat("不支持https协议！")
                 }else{
                     ws = new WebSocket('ws://frp-fly.top:54283')
                 }
@@ -152,6 +153,7 @@
                                 right.removeAttribute("hidden")
                                 dating.hidden = 'hidden'
                                 jieshufang.hidden = 'hidden'
+                                jieshufang.innerHTML = ''
                                 jishi.innerHTML = zongshijian * 0.3
                                 daojishi = setInterval(() => {
                                     jishi.innerHTML = Math.floor(jishi.innerHTML) - 1
@@ -288,6 +290,7 @@
                         var newp = document.createElement('p')
                         newp.innerHTML = ren[i][j] + "：" + hua[i][j]
                         jieshufang.appendChild(newp)
+                        jieshufang.scrollTop = jieshufang.scrollHeight
                     }else{
                         var newp = document.createElement('p')
                         newp.innerHTML = ren[i][j] + "："
@@ -296,14 +299,24 @@
                         newimg.src = hua[i][j]
                         newimg.style.width = "300px"
                         jieshufang.appendChild(newimg)
+                        newimg.onload = function(){
+                            jieshufang.scrollTop = jieshufang.scrollHeight
+                        }
                     }
-                    jieshufang.scrollTop = jieshufang.scrollHeight
                     if (i < imax - 1){
                         setTimeout(() => {xiayige(i + 1, j, imax, jmax)}, 3000);
                     }else if(j < jmax - 1){
-                        setTimeout(() => {xiayige(0, j + 1, imax, jmax)}, 5000);
+                        setTimeout(() => {
+                            xiayige(0, j + 1, imax, jmax)
+                        }, 5000);
                     }else{
-                        bfanhui.removeAttribute("hidden")
+                        var newb = document.createElement('button')
+                        newb.innerHTML = "返回大厅"
+                        newb.onclick = function(){
+                            fanhuidating()
+                        }
+                        jieshufang.appendChild(newb)
+                        jieshufang.scrollTop = jieshufang.scrollHeight
                     }
                 }
                 function addToChatEnd(json1){
@@ -394,7 +407,7 @@
                     }
                 </script>
             </div>
-            <div id="huahuazhong" hidden>  <!--隐藏！！！-->
+            <div id="huahuazhong" hidden>
             <div style="width:725px;float:left;">
             <p>开始作画吧</p>
             <p id="timu">null</p>
@@ -412,29 +425,29 @@
                 var beifen = []
                 var beifenmax = 50
                 var dangqian = -1
-                
+
                 if(!navigator.userAgent.includes("Mobile")){
                     
                     canvas.onmousedown = e => {
                         ctx.strokeStyle = color.value
                         isdown = true
-                        x = e.clientX - canvas.getBoundingClientRect().left
-                        y = e.clientY - canvas.getBoundingClientRect().top
+                        var x = e.clientX - canvas.getBoundingClientRect().left
+                        var y = e.clientY - canvas.getBoundingClientRect().top
                         drawto(x,y)
                     }
 
                     canvas.onmousemove = e => {
                         if(isdown){
-                            x = e.clientX - canvas.getBoundingClientRect().left
-                            y = e.clientY - canvas.getBoundingClientRect().top
+                            var x = e.clientX - canvas.getBoundingClientRect().left
+                            var y = e.clientY - canvas.getBoundingClientRect().top
                             drawto(x,y)
                         }
                     }
 
                     canvas.onmouseup = e => {
                         isdown = false
-                        x = e.clientX - canvas.getBoundingClientRect().left
-                        y = e.clientY - canvas.getBoundingClientRect().top
+                        var x = e.clientX - canvas.getBoundingClientRect().left
+                        var y = e.clientY - canvas.getBoundingClientRect().top
                         zuobiao = []
                         if (dangqian < beifenmax){
                             dangqian += 1
@@ -446,17 +459,34 @@
 
                     canvas.onmouseout = canvas.onmouseup
                 }else{
-                    addStrToChat("是手机")
                     canvas.ontouchstart = e => {
-                        addStrToChat(e.clientX - canvas.getBoundingClientRect().left)
-                        addStrToChat(e.clientY - canvas.getBoundingClientRect().top)
-                        addStrToChat("点了！")
+                        isdown = true
+                        ctx.strokeStyle = color.value
+                        var canvasXY = canvas.getBoundingClientRect()
+                        var x = e.changedTouches[0].clientX - canvasXY.left
+                        var y = e.changedTouches[0].clientY - canvasXY.top
+                        drawto(x,y)
+                        
                     }
                     canvas.ontouchmove = e => {
-                        addStrToChat("移动了！")
+                        var canvasXY = canvas.getBoundingClientRect()
+                        var x = e.changedTouches[0].clientX - canvasXY.left
+                        var y = e.changedTouches[0].clientY - canvasXY.top
+                        drawto(x,y)
+                        e.preventDefault()
                     }
                     canvas.ontouchend = e => {
-                        addStrToChat("停止了！")
+                        isdown = false
+                        var canvasXY = canvas.getBoundingClientRect()
+                        var x = e.changedTouches[0].clientX - canvasXY.left
+                        var y = e.changedTouches[0].clientY - canvasXY.top
+                        zuobiao = []
+                        if (dangqian < beifenmax){
+                            dangqian += 1
+                        }else{
+                            beifen.shift()
+                        }
+                        beifen[dangqian] = canvas.toDataURL()
                     }
                 }
                 
@@ -536,14 +566,13 @@
                 </div>
             </div>
             
-            <div id="jieshufang" style="width:550px;height:680px;float:left;overflow:auto;display:flex;flex-direction: column;" hidden>
+            <div id="jieshufang" style="width:550px;height:550px;float:left;overflow:auto;" hidden>
 
             </div>
-            <button id="bfanhui" onclick="fanhuidating()" hidden>返回大厅</button>
+            
             <script>
                 function fanhuidating(){
                     jieshufang.hidden = 'hidden'
-                    bfanhui.hidden = 'hidden'
                     dating.removeAttribute("hidden")
                 }
             </script>

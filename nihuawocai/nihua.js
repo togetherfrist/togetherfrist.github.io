@@ -57,7 +57,7 @@ const ws = require('ws');
 
     function handleMessage(msg){
         console.log('WebSocket message');
-        console.log(msg.toString('utf8'));
+        //console.log(msg.toString('utf8'));
         var json1 = JSON.parse(msg.toString('utf8'))
         switch(json1.type){
             case "message":
@@ -94,32 +94,30 @@ const ws = require('ws');
                     huihe = 1
                     hua = [[]]
                     shunxu = [[]]
-                    for(i = 0; i < zonghuihe; i++){
+                    for(i = 0; i < renshu; i++){
                         shunxu[i] = []
                         for(j = 0; j < renshu; j++){
                             shunxu[i][j] = (i + j) % renshu
                         }
                     }
-                    if(renshu == zonghuihe){
-                        for(i = 0; i < 30; i++){
-                            if(i % 2 == 0){
-                                var r1 = randbelow(zonghuihe)
-                                var r2 = randbelow(zonghuihe - 1)
-                                if(r2 == r1) r2 = zonghuihe - 1
-                                var li = shunxu[r1]
-                                shunxu[r1] = shunxu[r2]
-                                shunxu[r2] = li
-                            } else{
-                                var r1 = randbelow(renshu)
-                                var r2 = randbelow(renshu - 1)
-                                if(r2 == r1) r2 = renshu - 1
-                                for(j = 0; j < zonghuihe; j++){
-                                    var li = shunxu[j][r1]
-                                    shunxu[j][r1] = shunxu[j][r2]
-                                    shunxu[j][r2] = li
-                                }
+                    for(i = 0; i < 30; i++){
+                            var r1 = randbelow(renshu)
+                            var r2 = randbelow(renshu - 1)
+                            if(r2 == r1) r2 = renshu - 1
+                        if(i % 2 == 0){
+                            var li = shunxu[r1]
+                            shunxu[r1] = shunxu[r2]
+                            shunxu[r2] = li
+                        }else{
+                            for(j = 0; j < renshu; j++){
+                                var li = shunxu[j][r1]
+                                shunxu[j][r1] = shunxu[j][r2]
+                                shunxu[j][r2] = li
                             }
                         }
+                    }
+                    for(i = renshu; i < zonghuihe; i++){
+                        shunxu[i] = shunxu[i % renshu]
                     }
                     
                     json1.message = shunxu
@@ -159,7 +157,7 @@ const ws = require('ws');
 
                     }
 
-                }else if (host == null){
+                }else if (host == null || host == json1.user){
                     wanjia[wanjia.length] = json1.user
                     host = json1.user
                     json1.type = "join"
@@ -191,7 +189,6 @@ const ws = require('ws');
                     }
                     hua[huihe - 1][weizhi] = json1.message
                     ren[huihe - 1][weizhi] = json1.user
-                    //console.log(hua)
                     if(wancheng >= server.clients.size - dengdairenshu){
                         clearTimeout(timeout)
                         if(huihe == zonghuihe){
