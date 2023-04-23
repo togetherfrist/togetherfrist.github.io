@@ -6,7 +6,6 @@ const ws = require('ws');
     }
 
     var renshu = 0
-    var uidlist = []
     var wanjia = []
     var dengdairenshu = 0
     var kaishijishu = 0
@@ -145,14 +144,13 @@ const ws = require('ws');
                             newuid = i
                         }
                     }
-                    if(newuid != null && renshu + dengdairenshu <= server.clients.size){
+                    if(newuid != null && renshu + dengdairenshu >= server.clients.size){
                         json1.type = "backtogame"
                         json1.uid = newuid
                         json1.shunxu = shunxu
                         json1.now = ["backtodraw","backtocai"][huihe % 2]
                         json1.wanjia = wanjia
                         json1.isxiangsuhua = isxiangsuhua
-                        uidlist[newuid] = newuid
                         sendjson(json1)
                     }else{
                         dengdairenshu += 1
@@ -167,7 +165,6 @@ const ws = require('ws');
                     host = json1.user
                     json1.type = "join"
                     json1.wanjia = wanjia
-                    uidlist[newuid] = newuid
                     sendjson(json1)
                     json1.type = "host"
                     json1.host = host
@@ -176,7 +173,6 @@ const ws = require('ws');
                     wanjia[wanjia.length] = json1.user
                     json1.type = "join"
                     json1.wanjia = wanjia
-                    uidlist[newuid] = newuid
                     sendjson(json1)
                 }
                 break
@@ -184,8 +180,6 @@ const ws = require('ws');
             case "huawanle":
             case "caice":
                 if(["huawanle","caice"][huihe % 2] == json1.type || ["huawanle","chuti"][huihe % 2] == json1.type){
-                    console.log(wancheng)
-                    console.log(server.clients.size - dengdairenshu)
                     var weizhi = shunxu[huihe - 1].indexOf(json1.uid)
                     if(hua[huihe - 1] == undefined){
                         hua[huihe - 1] = []
@@ -195,11 +189,12 @@ const ws = require('ws');
                         console.log("someone finished")
                         wancheng += 1
                         hua[huihe - 1][weizhi] = 0
-                        console.log(wancheng)
                     }else{
                         console.log("更改了画")
                     }
-                    
+                    console.log("完成人数为 " + wancheng)
+                    console.log("总人数为 " + (server.clients.size - dengdairenshu))
+
                     ren[huihe - 1][weizhi] = json1.user
                     if(wancheng >= server.clients.size - dengdairenshu){
                         clearTimeout(timeout)
