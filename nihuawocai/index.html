@@ -91,14 +91,25 @@
                 if(window.location.href.includes("https")){
                     //ws = new WebSocket('wss://frp-fly.top:54283')
                     addStrToChat("不支持https协议！")
-                }else{
-                    ws = new WebSocket('ws://frp-fly.top:54283')
                 }
-                
-                ws.addEventListener('open',handleOpen,false);
-                ws.addEventListener('close',handleClose,false);
-                ws.addEventListener('error',handleError,false);
-                ws.addEventListener('message',handleMessage,false);
+
+                function lianjie(){
+                    ws = new WebSocket('ws://127.0.0.1:8000')
+                    ws.addEventListener('open',handleOpen,false)
+                    ws.addEventListener('close',handleClose,false)
+                    ws.addEventListener('error',handleError,false)
+                    ws.addEventListener('message',handleMessage,false)
+                }
+                lianjie()
+
+                function lianjieip(ip){
+                    ws = new WebSocket('ws://' + ip)
+                    ws.addEventListener('open',handleOpen,false)
+                    ws.addEventListener('close',handleClose,false)
+                    ws.addEventListener('error',handleError,false)
+                    ws.addEventListener('message',handleMessage,false)
+                }
+
 
                 function sendmsg(){
                     const msg = message.value;
@@ -133,11 +144,7 @@
                     var newb = document.createElement('button')
                     newb.innerHTML = "不刷新重连"
                     newb.onclick = function(){
-                        ws = new WebSocket('ws://frp-fly.top:54283')
-                        ws.addEventListener('open',handleOpen,false);
-                        ws.addEventListener('close',handleClose,false);
-                        ws.addEventListener('error',handleError,false);
-                        ws.addEventListener('message',handleMessage,false);
+                        lianjie()
                         newb.hidden = 'hidden'
                     }
                     newb.className = "button2"
