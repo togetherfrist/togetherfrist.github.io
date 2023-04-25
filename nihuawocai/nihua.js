@@ -9,6 +9,7 @@ const ws = require('ws');
     var wanjia = []
     var dengdairenshu = 0
     var kaishijishu = 0
+    var tongjirenshu = 0
     var wancheng = 0
     var huihe = 1
     var shunxu = [[]]
@@ -228,6 +229,24 @@ const ws = require('ws');
                     sendjson(json1)
                 }
                 break
+                case "tichu":
+                    tongjirenshu = 0
+                    wanjia = []
+                    sendbuf(msg)
+                break
+                case "gengxinwanjia":
+                    renshu = server.clients.size
+                    console.log("renshu == " + renshu)
+                    if(json1.user != null){
+                        wanjia[tongjirenshu] = json1.user
+                        tongjirenshu += 1
+                        console.log(tongjirenshu)
+                    }
+                    if(tongjirenshu >= renshu - 1){
+                        json1.wanjia = wanjia
+                        sendjson(json1)
+                    }
+
         }
     }
     function randbelow(int){

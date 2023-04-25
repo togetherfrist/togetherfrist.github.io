@@ -110,6 +110,20 @@
                     ws.addEventListener('message',handleMessage,false)
                 }
 
+                function tichu(name){
+                    ws.send(JSON.stringify({
+                        type:"tichu",
+                        name:name
+                    }))
+                }
+
+                function wanjialiebiao(list){
+                    var wanj = ""
+                    list.forEach(wan => {
+                        wanj = wanj + wan + "<br/>"
+                    });
+                    wanjia.innerHTML = "<p>玩家：<br/>" + wanj + "</p>"
+                }
 
                 function sendmsg(){
                     const msg = message.value;
@@ -173,11 +187,7 @@
                                 console.log("start?")
                                 isxiangsuhua = json1.isxiangsuhua
                                 console.log(json1.isxiangsuhua)
-                                var wanj = ""
-                                json1.wanjia.forEach(wan => {
-                                    wanj = wanj + wan + "<br/>"
-                                });
-                                wanjia.innerHTML = "<p>玩家：<br/>" + wanj + "</p>"
+                                wanjialiebiao(json1.wanjia)
                                 dengdai = false
                                 chuti.value = ''
                                 uid = json1.wanjia.indexOf(localStorage.getItem('username'))
@@ -195,11 +205,7 @@
                                 break
                             case "join":
                                 dating.removeAttribute("hidden")
-                                var wanj = ""
-                                json1.wanjia.forEach(wan => {
-                                    wanj = wanj + wan + "<br/>"
-                                });
-                                wanjia.innerHTML = "<p>玩家：<br/>" + wanj + "</p>"
+                                wanjialiebiao(json1.wanjia)
                                 break
                             case "host":
                                 if(json1.host == localStorage.getItem('username')){
@@ -296,9 +302,9 @@
                                 break
                             case "askforstart":
                                 ws.send(JSON.stringify({
-                                        type:"start",
-                                        user:localStorage.getItem('username')
-                                    }))
+                                    type:"start",
+                                    user:localStorage.getItem('username')
+                                }))
                                 break
                             case "dengdai":
                                 if(json1.user == localStorage.getItem('username')){
@@ -342,6 +348,19 @@
                                     }
                                     addStrToChat("已返回游戏")
                                 }
+                                break
+                            case "tichu":
+                                if(json1.name == localStorage.getItem('username')){
+                                    ws.close()
+                                }else{
+                                    ws.send(JSON.stringify({
+                                        type:"gengxinwanjia",
+                                        user:localStorage.getItem('username')
+                                    }))
+                                }
+                                break
+                            case "gengxinwanjia":
+                                wanjialiebiao(json1.wanjia)
                                 break
 
                         }
@@ -736,6 +755,8 @@
                     }
                     
                     function huawanle(){
+                        bhuawan.innerHTML = "已发送！"
+                        setTimeout(() => {bhuawan.innerHTML = "完成"}, 1000);
                         if(ischanged){
                             ws.send(JSON.stringify({
                                 type:"huawanle",
@@ -744,9 +765,7 @@
                                 message:canvas.toDataURL(),
                                 ischanged:ischanged
                             }))
-                            bhuawan.innerHTML = "已发送！"
                             ischanged = false
-                            setTimeout(() => {bhuawan.innerHTML = "完成"}, 1000);
                         }
                         
                     }
