@@ -46,15 +46,21 @@
                     }
                 }
                 function setusername(){
-                    if(!username.value.trim().length) return
-                    localStorage.setItem('username', username.value.trim());
-                    ws.send(JSON.stringify({
-                        type:"username",
-                        user:username.value
-                    }))
-                    username.value = ''
-                    username.hidden = 'hidden'
-                    setname.hidden = 'hidden'
+                    if(username.value.trim().length){
+                        localStorage.setItem('username', username.value.trim());
+                        ws.send(JSON.stringify({
+                            type:"username",
+                            user:username.value
+                        }))
+                        username.value = ''
+                        username.hidden = 'hidden'
+                        setname.hidden = 'hidden'
+                    }else if(localStorage.getItem('username') != null){
+                        ws.send(JSON.stringify({
+                            type:"username",
+                            user:localStorage.getItem('username')
+                        }))
+                    }
                 }
 
                 if(localStorage.getItem('username') != null){
