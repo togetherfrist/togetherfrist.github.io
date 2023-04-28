@@ -1,0 +1,7 @@
+{
+    "cmake.sourceDirectory": "/workspaces/togetherfrist.github.io/c++",
+    "files.associations": {
+        "ostream": "cpp",
+        "iostream": "cpp"
+    }
+}
