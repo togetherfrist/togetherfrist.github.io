@@ -1,35 +1,34 @@
 #include <iostream>
 using namespace std;
 
-int lengthOfLongestSubstring(string s) {
-        int i = 0;
-        int j = 1;
-        int da = 0;
-        while(i < s.length()){
-            if(j >= s.length()){
-               da = max(da, j - i);
-               break;
-            }
-            int pos = -1;
-            for(int k = i; k < j; k++){
-               if(s[k] == s[j]){
-                  pos = k;
-               }
-            }
-            if(pos > -1){
-               da = max(da, j - i);
-               i = pos + 1;
-               j = i + 1;
-            }else{
-               j++;
-            }
-        }
-        return da;
-   }
+class Solution {
+public:
+    string convert(string s, int numRows) {
+      int n = s.size();
+      int t0 = numRows - 1;
+      int T = t0 * 2;
+      if(t0 == 0){T = 1;}
+      string s1[numRows];
+      string s2;
+      int i = 0;
+      while(i < n){
+        int pos = t0 - abs(i % T - t0);
+        s1[pos] += s[i];
+        i++;
+      }
+      for(int j = 0; j < numRows; j++){
+        s2 = s2 + s1[j];
+      }
+      return s2;
+      
+    }
+};
 
-int main ()
+int main(int argc, char const *argv[])
 {
-   string s1 = "abcabbb123 51";
-   cout << lengthOfLongestSubstring(s1) << endl;
-   return 0;
+   Solution so;
+   string s1 = "PAYPALISHIRING";
+   int row = 3;
+   cout << so.convert(s1, row) << endl;
+
 }
