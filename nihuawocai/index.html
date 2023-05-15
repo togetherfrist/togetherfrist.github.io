@@ -3,6 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <title>你画我猜</title>
+        <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
         <style>
             chat p{
                 margin-top: 0px;
@@ -100,7 +101,7 @@
                 }
 
                 function lianjie(){
-                    ws = new WebSocket('ws://127.0.0.1:8000')
+                    ws = new WebSocket('ws://frp-fly.top:54283')
                     ws.addEventListener('open',handleOpen,false)
                     ws.addEventListener('close',handleClose,false)
                     ws.addEventListener('error',handleError,false)

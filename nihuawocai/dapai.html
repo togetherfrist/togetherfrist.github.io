@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8">
+        <title>打牌</title>
+        <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
+        <style>
+            table {
+                border: 1px solid #000000;
+                float: left;
+            }
+            td {
+                border: 1px solid #000000;
+                padding: 10px;
+            }
+            shuru {
+                padding-right: 36px;
+                margin-right: 5px;
+                border: 1px solid #2c2c2c;
+                border-style: dashed;
+                padding-top: 10px;
+                padding-bottom: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="target" style="background-color:#ffffff;height:150px;width:1000px;float:left">
+            对方
+            <table>
+                <tr>
+                    <th>攻击</th>
+                </tr>
+                <tr>
+                    <td>造成 0 点伤害</td>
+                </tr>
+            </table>
+            <p>血量 <xie id="dfxl">100</xie></p>
+        </div>
+        <div id="changzhong" style="background-color:#ffffff;height:200px;width:1000px;float:left;border: 1px solid #000000;">
+        </div>
+        <div id="wo" style="background-color:#ffffff;height:150px;width:1000px;float:left">
+            <p></p>
+            <div id="shoupai"> </div><br/><br/><br/>
+            
+            <p>血量 <xie id="wfxl">100</xie></p><button onclick="choupai()">抽牌</button>
+        </div>
+        <script>
+            class Pai{
+                constructor(name, miaoshu, nei){
+                    this.name = name
+                    this.nei = nei
+                    this.miaoshu = miaoshu
+                }
+            }
+            var paiku = [
+                new Pai("数字", "", 0),
+                new Pai("攻击", "造成 <shuru></shuru> 点伤害", function(){
+                    console.log("go!!!")
+                }),
+            ]
+            
+            function choupai(){
+                var pai = paiku[randbelow(paiku.length)]
+                var newtable = document.createElement('table')
+                var newtr1 = document.createElement('tr')
+                var newtr2 = document.createElement('tr')
+                var newth = document.createElement('th')
+                var newtd = document.createElement('td')
+                newth.innerHTML = pai.name
+                if(pai.name == "数字"){
+                    pai.nei = randbelow(10)
+                    pai.miaoshu = pai.nei
+                }
+                newtd.innerHTML = pai.miaoshu
+                newtd.nei = pai.nei
+                newtr1.appendChild(newth)
+                newtr2.appendChild(newtd)
+                newtable.appendChild(newtr1)
+                newtable.appendChild(newtr2)
+                shoupai.appendChild(newtable)
+                
+                newtable.onclick = function(){
+                    var shuru = changzhong.getElementsByTagName("shuru")
+                    if(shuru.length > 0){
+                        if(typeof pai.nei == 'number'){
+                            shuru[0].style = "padding-right:0px;margin-right:0px;"
+                            shuru[0].appendChild(newtd)
+                            
+                            shoupai.removeChild(newtable)
+                        }else{
+                            console.log("ok")
+                        }
+                    }else{
+                        changzhong.appendChild(newtd)
+                        shoupai.removeChild(newtable)
+                        if(typeof changzhong.lastElementChild.nei == 'function'){
+                            changzhong.lastElementChild.nei()
+                        }
+                    } 
+                    
+                }
+                
+            }
+
+            choupai()
+
+            function randbelow(int){
+                return Math.floor(Math.random()*int) 
+            }
+            
+
+        </script>
+    </body>
+</html>
