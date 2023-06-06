@@ -14,8 +14,9 @@ const ws = require('ws');
     var huihe = 1
     var shunxu = [[]]
     var hua = [[]]
-    var ren = [[]]
     var zonghuihe = 0
+    var huatushijian = 150
+    var caiceshijian = 45
     var isingame = false
     var host = null
     var timeout
@@ -69,14 +70,13 @@ const ws = require('ws');
                 kaishijishu = 0
                 dengdairenshu = 0
                 wanjia = []
-                console.log("that zonghuihe == " + json1.zonghuihe)
                 if(json1.zonghuihe == 0 || json1.zonghuihe.zonghuihe == NaN){
                     zonghuihe = server.clients.size
                 }else{
                     zonghuihe = json1.zonghuihe
                 }
-                console.log("this zonghuihe == " + zonghuihe)
-                zongshijian = json1.shijianbeilv * 150
+                huatushijian = json1.huatushijian
+                caiceshijian = json1.caiceshijian
                 isxiangsuhua = json1.isxiangsuhua
                 break
             case "start":
@@ -92,11 +92,11 @@ const ws = require('ws');
                     isingame = true
                     wancheng = 0
                     console.log("zonghuihe == " + zonghuihe)
-                    console.log("zongshijian == " + zongshijian)
+                    console.log("huatushijian == " + huatushijian)
+                    console.log("caiceshijian == " + caiceshijian)
                     huihe = 1
                     hua = [[]]
                     shunxu = [[]]
-                    ren = [[]]
                     for(i = 0; i < renshu; i++){
                         shunxu[i] = []
                         for(j = 0; j < renshu; j++){
@@ -124,7 +124,8 @@ const ws = require('ws');
                     }
                     
                     json1.message = shunxu
-                    json1.zongshijian = zongshijian
+                    json1.huatushijian = huatushijian
+                    json1.caiceshijian = caiceshijian
                     json1.wanjia = wanjia
                     json1.isxiangsuhua = isxiangsuhua
                     console.log(json1)
@@ -132,12 +133,11 @@ const ws = require('ws');
                     timeout = setTimeout(() => {
                         json1.type = "jieshuchuti"
                         sendjson(json1)
-                    }, zongshijian * 0.3 * 1000);
+                    }, caiceshijian * 1000);
                 }
                 
                 break
             case "username":
-                
                 if(isingame){
                     var newuid = null
                     for(i = 0; i < wanjia.length; i++){
@@ -150,6 +150,7 @@ const ws = require('ws');
                         json1.uid = newuid
                         json1.shunxu = shunxu
                         json1.now = ["backtodraw","backtocai"][huihe % 2]
+                        if(huihe == 1) json1.now = "backtochu"
                         json1.wanjia = wanjia
                         json1.isxiangsuhua = isxiangsuhua
                         sendjson(json1)
@@ -184,7 +185,6 @@ const ws = require('ws');
                     var weizhi = shunxu[huihe - 1].indexOf(json1.uid)
                     if(hua[huihe - 1] == undefined){
                         hua[huihe - 1] = []
-                        ren[huihe - 1] = []
                     }
                     if(hua[huihe - 1][weizhi] == undefined){
                         console.log("someone finished")
@@ -196,7 +196,6 @@ const ws = require('ws');
                     console.log("完成人数为 " + wancheng)
                     console.log("总人数为 " + (server.clients.size - dengdairenshu))
 
-                    ren[huihe - 1][weizhi] = json1.user
                     if(wancheng >= server.clients.size - dengdairenshu){
                         clearTimeout(timeout)
                         if(huihe == zonghuihe){
@@ -208,22 +207,21 @@ const ws = require('ws');
                                 timeout = setTimeout(() => {
                                     json1.type = "jieshuhuahua"
                                     sendjson(json1)
-                                }, zongshijian * 1000);
+                                }, huatushijian * 1000);
                             }else if (json1.type == "huawanle"){
                                 json1.type = "cai"
                                 timeout = setTimeout(() => {
                                     json1.type = "jieshucaice"
                                     sendjson(json1)
-                                }, zongshijian * 0.3 * 1000);
+                                }, caiceshijian * 1000);
                             }
-                        }    
-                        json1.ren = ren[huihe - 1]
-                        json1.message = [wancheng, server.clients.size, huihe - 1, weizhi, json1.message]
+                        }
+                        json1.message = [wancheng, server.clients.size - dengdairenshu, huihe - 1, weizhi, json1.message]
                         wancheng = 0
                         huihe += 1
                         json1.huihe = huihe
                     }else{
-                        json1.message = [wancheng, server.clients.size, huihe - 1, weizhi, json1.message]
+                        json1.message = [wancheng, server.clients.size - dengdairenshu, huihe - 1, weizhi, json1.message]
                     }
                     
                     sendjson(json1)
@@ -236,11 +234,9 @@ const ws = require('ws');
                 break
                 case "gengxinwanjia":
                     renshu = server.clients.size
-                    console.log("renshu == " + renshu)
                     if(json1.user != null){
                         wanjia[tongjirenshu] = json1.user
                         tongjirenshu += 1
-                        console.log(tongjirenshu)
                     }
                     if(tongjirenshu >= renshu - 1){
                         json1.wanjia = wanjia

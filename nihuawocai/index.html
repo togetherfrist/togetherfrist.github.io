@@ -72,7 +72,7 @@
             </script>
 
             <input type="text" id="message" placeholder="请输入消息" onkeydown="enterkey2()"/>
-            <button id="send" onclick="sendmsg()">发送</button>
+            <button id="send" onclick="sendmsg()">发送</button><br/>
             <wanjia id="wanjia"></wanjia>
 
             <script>
@@ -86,11 +86,10 @@
                 
                 var ws
                 var uid = null
-                var zongshijian
                 var daojishi
                 var shunxu = [[]]
                 var hua = [[]]
-                var ren = [[]]
+                var wanjial = []
                 var dengdai = true
                 var isxiangsuhua = false
                 var ischanged  = true
@@ -148,7 +147,8 @@
                 }
                 function behost(){
                     zonghuihe.removeAttribute("disabled")
-                    shijianbeilv.removeAttribute("disabled")
+                    sethuatushijian.removeAttribute("disabled")
+                    setcaiceshijian.removeAttribute("disabled")
                     moshi.removeAttribute("disabled")
                     startbutton.removeAttribute("hidden")
                 }
@@ -190,29 +190,34 @@
                             case "start":
                                 shunxu = [[]]
                                 hua = [[]]
-                                ren = [[]]
                                 console.log("start?")
                                 isxiangsuhua = json1.isxiangsuhua
                                 console.log(json1.isxiangsuhua)
-                                wanjialiebiao(json1.wanjia)
                                 dengdai = false
                                 chuti.value = ''
-                                uid = json1.wanjia.indexOf(localStorage.getItem('username'))
+                                wanjial = json1.wanjia
+                                wanjialiebiao(wanjial)
+                                uid = wanjial.indexOf(localStorage.getItem('username'))
                                 shunxu = json1.message
-                                zongshijian = json1.zongshijian
+                                huatushijian = json1.huatushijian
+                                caiceshijian = json1.caiceshijian
                                 chutizhong.removeAttribute("hidden")
                                 right.removeAttribute("hidden")
                                 dating.hidden = 'hidden'
                                 jieshufang.hidden = 'hidden'
                                 jieshufang.innerHTML = ''
-                                jishi.innerHTML = zongshijian * 0.3
+                                jishi.innerHTML = caiceshijian
                                 daojishi = setInterval(() => {
                                     jishi.innerHTML = Math.floor(jishi.innerHTML) - 1
                                 }, 1000);
                                 break
                             case "join":
                                 dating.removeAttribute("hidden")
+                                console.log(json1.wanjia)
                                 wanjialiebiao(json1.wanjia)
+                                chutizhong.hidden = 'hidden'
+                                huahuazhong.hidden = 'hidden'
+                                caicezhong.hidden = 'hidden'
                                 break
                             case "host":
                                 if(json1.host == localStorage.getItem('username')){
@@ -231,14 +236,13 @@
                                 hua[json1.message[2]][json1.message[3]] = json1.message[4]
                                 break
                             case "draw":
-                                if(!dengdai){                            
-                                    
+                                if(!dengdai){
+                                    ischanged = true
                                     if(hua[json1.message[2]] == undefined){
                                         hua[json1.message[2]] = []
                                     }
                                     hua[json1.message[2]][json1.message[3]] = json1.message[4]
                                     clearInterval(daojishi)
-                                    ren[json1.huihe - 2] = json1.ren
                                     var xinweizhi = shunxu[json1.huihe - 1].indexOf(uid)
                                     timu.innerHTML = hua[json1.huihe - 2][xinweizhi]
                                     chutizhong.hidden = 'hidden'
@@ -261,7 +265,8 @@
                                     chuti.value = ""
                                     caice.value = ""
                                     wancheng.innerHTML = 0 + " / "
-                                    jishi.innerHTML = zongshijian
+                                    renshu.innerHTML = json1.message[1]
+                                    jishi.innerHTML = huatushijian
                                     daojishi = setInterval(() => {
                                         jishi.innerHTML = Math.floor(jishi.innerHTML) - 1
                                     }, 1000);
@@ -275,14 +280,14 @@
                                     }
                                     hua[json1.message[2]][json1.message[3]] = json1.message[4]
                                     clearInterval(daojishi)
-                                    ren[json1.huihe - 2] = json1.ren
                                     var xinweizhi = shunxu[json1.huihe - 1].indexOf(uid)
                                     huati.src = hua[json1.huihe - 2][xinweizhi]
                                     huahuazhong.hidden = 'hidden'
                                     caicezhong.removeAttribute("hidden")
                                     qingkong()
                                     wancheng.innerHTML = 0 + " / "
-                                    jishi.innerHTML = zongshijian * 0.3
+                                    renshu.innerHTML = json1.message[1]
+                                    jishi.innerHTML = caiceshijian
                                     daojishi = setInterval(() => {
                                         jishi.innerHTML = Math.floor(jishi.innerHTML) - 1
                                     }, 1000);
@@ -291,7 +296,6 @@
                                 break
                             case "end":
                                 clearInterval(daojishi)
-                                ren[json1.huihe - 2] = json1.ren
                                 if(hua[json1.message[2]] == undefined){
                                     hua[json1.message[2]] = []
                                 }
@@ -333,10 +337,12 @@
                                     dengdai = false
                                     uid = json1.uid
                                     shunxu = json1.shunxu
-                                    if(json1.now = "backtodraw"){
+                                    if(json1.now == "backtodraw"){
                                         huahuazhong.removeAttribute("hidden")
-                                    }else if(json1.now = "backtocai"){
+                                    }else if(json1.now == "backtocai"){
                                         caicezhong.removeAttribute("hidden")
+                                    }else{
+                                        chutizhong.removeAttribute("hidden")
                                     }
                                     isxiangsuhua = json1.isxiangsuhua
                                     if(isxiangsuhua){
@@ -378,12 +384,12 @@
                     
                     if (i % 2 == 0){
                         var newp = document.createElement('p')
-                        newp.innerHTML = ren[i][j] + "：" + hua[i][j]
+                        newp.innerHTML = wanjial[shunxu[i][j]] + "：" + hua[i][j]
                         jieshufang.appendChild(newp)
                         jieshufang.scrollTop = jieshufang.scrollHeight
                     }else{
                         var newp = document.createElement('p')
-                        newp.innerHTML = ren[i][j] + "："
+                        newp.innerHTML = wanjial[shunxu[i][j]] + "："
                         jieshufang.appendChild(newp)
                         var newimg = document.createElement('img')
                         if(isxiangsuhua){
@@ -448,12 +454,9 @@
                     <option value="7">7</option>
                 </datalist>
                 </p>
-                <p>时间倍率：<input type="text" id="shijianbeilv" placeholder="1" list="shijianlist" disabled/></p>
-                <datalist id="shijianlist">
-                    <option value="0.9">0.9</option>
-                    <option value="1">1</option>
-                    <option value="1.1">1.1</option>
-                </datalist>
+                <p>画图时间：<input type="text" id="sethuatushijian" placeholder="150" disabled/></p>
+                <p>猜测时间：<input type="text" id="setcaiceshijian" placeholder="45" disabled/></p>
+
                 <p>模式：<input type="text" id="moshi" placeholder="" list="moshilist" disabled/></p>
                 <datalist id="moshilist">
                     <option value="像素画">像素画</option>
@@ -461,16 +464,21 @@
                 <button id="startbutton" onclick="askforstart()" hidden>开始</button><br/>
             <script>
                 function askforstart(){
-                    var beilv = shijianbeilv.value
-                    if(shijianbeilv.value == ""){
-                        beilv = 1
+                    var htshijian = sethuatushijian.value
+                    if(htshijian == ""){
+                        htshijian = sethuatushijian.placeholder
+                    }
+                    var ccshijian = setcaiceshijian.value
+                    if(ccshijian == ""){
+                        ccshijian = setcaiceshijian.placeholder
                     }
                     ws.send(JSON.stringify({
                         type:"askforstart",
                         uid:0,
                         message:[],
                         zonghuihe:Math.floor(zonghuihe.value),
-                        shijianbeilv:Number(beilv),
+                        huatushijian:Number(htshijian),
+                        caiceshijian:Number(ccshijian),
                         isxiangsuhua:(moshi.value == "像素画"),
                     }))
                 }
@@ -485,7 +493,6 @@
                         ws.send(JSON.stringify({
                             type:"chuti",
                             uid:uid,
-                            user:localStorage.getItem('username'),
                             message:chuti.value,
                             ischanged:true
                         }))
@@ -504,7 +511,6 @@
                         ws.send(JSON.stringify({
                             type:"caice",
                             uid:uid,
-                            user:localStorage.getItem('username'),
                             message:caice.value,
                             ischanged:true
                         }))
@@ -570,6 +576,7 @@
                     }
 
                     canvas.onmouseout = canvas.onmouseup
+
                 }else{
                     canvas.ontouchstart = e => {
                         isdown = true
@@ -701,6 +708,7 @@
                     }
 
                     canvas2.onmouseout = canvas2.onmouseup
+
                 }else{
 
                     canvas2.ontouchstart = e => {
@@ -768,7 +776,6 @@
                             ws.send(JSON.stringify({
                                 type:"huawanle",
                                 uid:uid,
-                                user:localStorage.getItem('username'),
                                 message:canvas.toDataURL(),
                                 ischanged:ischanged
                             }))
