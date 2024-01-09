@@ -5,46 +5,77 @@
         <title>模拟</title>
     </head>
     <body>
-        <button id="chongzhi">重置</button>
-        <canvas id="canvas" width="1000px" height="600px" style="border:1px solid #c3c3c3;"></canvas>
+        <button id="update" onclick="update()">update</button>
+        <canvas id="canvas" width="1200px" height="600px" style="border:1px solid #c3c3c3;"></canvas>
         <script>
             const ctx = canvas.getContext("2d")
             ctx.strokeStyle = "black"
             ctx.fillStyle = "black"
             ctx.lineWidth = 3
-            var xa = 0
-            var ya = 500
-            var xb = 0
-            var yb = 0
-            var xc = 0
-            var yc = 0
+            ctx.clearRect(0, 0, ctx.width, ctx.height)
+            
+            var m = 1
+            var g = 10
+            var q = 5e6
+            var k = 9*10e-9
+            var r = Math.sqrt(k * q * q / m / g)
+            var x1 = 0
+            var y1 = r
+            var x2 = r
+            var y2 = r
+            var vx = 0
+            var vy = 0
 
-            function cx(x){
+            ctx.beginPath()
+            ctx.arc(canvasx(0), canvasy(r), r, 0, Math.PI)
+            ctx.stroke()
+
+            function update(){
+                r = distance(x1, y1, x2, y2)
+                var f = k * q * q / r / r
+                var fx = f * (x1 - x2) / distance(x1, y1, x2, y2)
+                var fy = f * (y1 - y2) / distance(x1, y1, x2, y2) - m * g
+                var ax = fx / m
+                var ay = fy / m
+                var t = 0.01
+                x2 += vx * t
+                y2 += vy * t
+                vx += ax * t
+                vy += ay * t
+                ctx.clearRect(0, 0, ctx.width, ctx.height)
+                draw(x1, y1)
+                draw(x2, y2)
+
+                setTimeout("update()",5)
+            }
+
+            function distance(x_1, y_1, x_2, y_2){
+                return Math.sqrt((x_1 - x_2)**2 + (y_1 - y_2)**2)
+            }
+
+            function canvasx(x){
                 return canvas.width / 2 + x
             }
 
-            function cy(y){
+            function canvasy(y){
                 return canvas.height - 10 - y
             }
 
             function draw(x, y){
                 ctx.beginPath()
-                ctx.arc(cx(x), cy(y), 10, 0, Math.PI * 2)
+                ctx.arc(canvasx(x), canvasy(y), 10, 0, Math.PI * 2)
                 ctx.fill()
             }
 
             function line(x1, y1, x2, y2){
                 ctx.beginPath();
-                ctx.moveTo(cx(x1), cy(y1));
-                ctx.lineTo(cx(x2), cy(y2));
+                ctx.moveTo(canvasx(x1), canvasy(y1));
+                ctx.lineTo(canvasx(x2), canvasy(y2));
                 ctx.stroke();
             }
-            draw(xa, ya)
-            draw(xb, yb)
-            draw(xc, yc)
+            draw(x1, y1)
+            draw(x2, y2)
 
-            line(xa, ya, xb, yb)
-            line(xa, ya, xc, yc)
         </script>
     </body>
 </html>
