@@ -20,14 +20,14 @@
             
             const m = 1
             const g = 10
-            const q = 1e6
+            const q = 5e6
             const k = 9*10e-9
             const R = Math.sqrt(k * q * q / m / g)
             const t = 0.01
             var x1 = 0
-            var y1 = 3 * R
+            var y1 = R
             var x2 = R
-            var y2 = 3 * R
+            var y2 = R
             var vx = 0
             var vy = 0
 
@@ -35,14 +35,14 @@
             ctx2.fillRect(0,0,canvas2.width, canvas2.height)
             ctx2.fill()
             ctx2.beginPath()
-            ctx2.arc(canvasx(0), canvasy(3 * R), R + 10, 0, Math.PI)
+            ctx2.arc(canvasx(0), canvasy(R), R + 10, 0, Math.PI)
             ctx2.stroke()
 
             background()
 
             function update(){
                 var r = distance(x1, y1, x2, y2)
-                if(r > R && y2 < 3 * R){
+                if(r > R && y2 < R){
                     var c1 = x1 - x2
                     var d1 = y1 - y2
                     var c2 = d1 / Math.sqrt(c1**2+d1**2)
@@ -65,7 +65,7 @@
                 draw(x1, y1)
                 draw(x2, y2)
 
-                setTimeout("update()",2)
+                setTimeout("update()",5)
             }
 
             function distance(x_1, y_1, x_2, y_2){
