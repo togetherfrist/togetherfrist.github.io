@@ -6,6 +6,8 @@
     </head>
     <body>
         <button id="update" onclick="update()">update</button>
+        <p id="energy"></p>
+        <p id="velocity"></p>
         <canvas id="canvas" width="1200px" height="600px" style="border:1px solid #c3c3c3;"></canvas>
         <canvas id="canvas2" width="1200px" height="600px" hidden="hidden"></canvas>
         <script>
@@ -18,12 +20,14 @@
             ctx2.fillStyle = "black"
             ctx2.lineWidth = 3
             
+            const BallR = 10
             const m = 1
             const g = 10
             const q = 5e6
             const k = 9*10e-9
             const R = Math.sqrt(k * q * q / m / g)
-            const t = 0.01
+            const R1 = R + BallR
+            const t = 0.001
             var x1 = 0
             var y1 = R
             var x2 = R
@@ -35,41 +39,49 @@
             ctx2.fillRect(0,0,canvas2.width, canvas2.height)
             ctx2.fill()
             ctx2.beginPath()
-            ctx2.arc(canvasx(0), canvasy(R), R + 10, 0, Math.PI)
+            ctx2.arc(canvasx(0), canvasy(R), R + BallR, 0, Math.PI)
             ctx2.stroke()
 
             background()
 
             function update(){
                 var r = distance(x1, y1, x2, y2)
-                if(r > R && y2 < R){
+                if(Math.abs(r - R1) < BallR && y2 < R){
                     var c1 = x1 - x2
                     var d1 = y1 - y2
-                    var c2 = d1 / Math.sqrt(c1**2+d1**2)
-                    var d2 = -c1 / Math.sqrt(c1**2+d1**2)
+                    var c2 = -d1 / hypot(c1, d1)
+                    var d2 = c1 / hypot(c1, d1)
                     var nx = (vx * c2 + vy * d2) * c2
                     var ny = (vx * c2 + vy * d2) * d2
-                    vx = 2 * nx - vx
-                    vy = 2 * ny - vy
+                    var newvx = 2 * nx - vx
+                    var newvy = 2 * ny - vy
+                    vx = newvx
+                    vy = newvy
                 }
                 var f = k * q * q / r / r
                 var fx = f * (x1 - x2) / distance(x1, y1, x2, y2)
                 var fy = f * (y1 - y2) / distance(x1, y1, x2, y2) - m * g
                 var ax = fx / m
                 var ay = fy / m
-                x2 += vx * t
-                y2 += vy * t
                 vx += ax * t
                 vy += ay * t
+                x2 += vx * t
+                y2 += vy * t
                 background()
                 draw(x1, y1)
                 draw(x2, y2)
+                var v = hypot(vx, vy)
+                energy.innerHTML = "E = " + (m * v ** 2 / 2 - k * q**2 / r + m * g * y2)
+                velocity.innerHTML = "v = " + v
+                setTimeout("update()",0.1)
+            }
 
-                setTimeout("update()",5)
+            function hypot(x, y){
+                return Math.sqrt(x ** 2 + y ** 2)
             }
 
             function distance(x_1, y_1, x_2, y_2){
-                return Math.sqrt((x_1 - x_2)**2 + (y_1 - y_2)**2)
+                return hypot(x_1 - x_2, y_1 - y_2)
             }
 
             function canvasx(x){
