@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>groophite 文档</title>
+        <link rel="stylesheet" href="mt.css">
+        <link rel="stylesheet" href="index.css">
+    </head>
+
+    <body class="container">
+
+        <div id="container" style="width:1150px" float="left">
+        
+            <div id="header" class="text-center">
+            <p style="margin-bottom:0;">groophite 文档-模组配方</p></div>
+            
+            <div id="menu" style="background-color:#ffffff;height:200px;width:200px;float:left;" class="overflow_auto">
+            <b><a class="text-center text-2xl text-black font-bold" href="index.html">菜单</a></b><br>
+            <a class="text-center text-2xl text-black" href="原版配方.html">原版配方</a><br>
+            <a class="text-center text-2xl text-black" href="模组配方.html">模组配方</a><br>
+            <a class="text-center text-2xl text-black" href="事件.html">事件</a><br>
+            待定</div>
+            
+            <div id="content" style="background-color:#ffffff;height:200px;width:800px;float:left;">
+        
+<h1>魔改基于 Craft Tweaker 的模组</h1>
+<p>一般地，groophite 可以添加所有与 CraftTweaker 联动的模组的配方。</p>
+<p>这里以添加火种科技配方为例。想要添加的配方：在简陋的晾干架上放泥土，得到草方块。</p>
+<h4>1.找到添加配方的语句</h4>
+<p>我们需要先加好需要的模组，再进入游戏，输入 /grt dump ，退出游戏。</p>
+<p>在 IDEA 中按 ctrl+shift+F 在项目搜索 <code>(?is)pyrotech.*?@ZenMethod</code> ，其中 pyrotech 是火种科技的英文名。按右上角固定窗口，按下面显示文件的路径打开文件夹，直到看到很多文件。忽略.class后缀的文件，找出要加的合成表的文件，这里是 ZenCrudeDryingRack ，打开它，可以看到这样一段：</p>
+<pre class=" bg-gray-800"><code class="java text-white">
+@ZenMethod  
+public static void addRecipe(String name, IItemStack output, IIngredient input, int dryTimeTicks, @Optional boolean inherited)
+
+</code></pre>
+<p>根据文件名和这一段，我们就知道可以用 <code>ZenCrudeDryingRack.addRecipe(...)</code> 这个语句来添加配方，其中 ZenCrudeDryingRack 是刚刚看到这段话所在的文件的名字， addRecipe(...) 是 public static void 后的句子。</p>
+<h4>2.写脚本</h4>
+<p>先在开头写下</p>
+<pre><code class="groovy">import gens.Minecraft
+import groovy.transform.BaseScript
+@BaseScript GlobalUtils _
+</code></pre>
+<p>（写完之后会有一个警告，但不用理它）</p>
+<p>换行，再输入 <code>ZenCrudeDryingRack.addRecipe()</code> 
+如果你直接复制这段话，会发现 <code>ZenCrudeDryingRack</code> 被画了线，这是因为还没有导入类，可以点击 <code>ZenCrudeDryingRack</code> 和 <code>.addRecipe()</code> 中间，再点左边的灯泡，点“导入类”，就会帮你在上面导入。</p>
+<p>（如果你是手打的语句，按 Tab 补全，它就会自动帮你导入）</p>
+<p>接着，就可以在( )内输入内容了。在括号内输入 "," 然后等一会，就能看到提示。
+以逗号为间隔，逐个看提示。</p>
+<table>
+<thead>
+<tr><th>提示</th><th>意思</th><th>解释</th></tr>
+</thead>
+<tbody>
+<tr><td>Srting name</td><td>字符串类型的配方名</td><td>要用双引号引起来，不能重复</td></tr>
+<tr><td>IItemStack output</td><td>IItemStack 类型的输出物品</td><td>一个物品</td></tr>
+<tr><td>IIngredient input</td><td>IIngredient 类型的输入物品</td><td>物品、流体或矿词等</td></tr>
+<tr><td>int dryTimeTicks</td><td>整数的干燥时间</td><td>单位为 tick ( 1 秒 = 20 tick )</td></tr>
+<tr><td>boolean inherited</td><td>true 或 false (是否继承)</td><td>更高等级的晾干架是否会有这个配方</td></tr>
+</tbody>
+</table>
+<p>其中，IItemStack 类型的物品可以用 itemStack(String) 来获取。因为在提前准备好的 gens\Minecraft.groovy 中已经给每个物品 id 写了一个对应的变量，所以我们可以用<code> 模组名.物品名 </code>来代替物品 id。例如： itemStack(Minecraft.apple) 就表示 minecraft:apple 这个物品。另外，你可以在 gens 文件夹中的文件看到各个字符串对应的物品。</p>
+<p>由于 IItemStack,IOreDictEntry(矿词),ILiquidStack(流体)等都是 IIngredient 的一种，所以它们都可以当做 IIngredient 来使用。</p>
+<h4>3.完整写出脚本：</h4>
+<pre><code class="groovy">import com.codetaylor.mc.pyrotech.modules.tech.basic.plugin.crafttweaker.ZenCrudeDryingRack
+import gens.Minecraft
+import groovy.transform.BaseScript
+@BaseScript GlobalUtils _  
+
+ZenCrudeDryingRack.addRecipe("test1",itemStack(Minecraft.grass),itemStack(Minecraft.dirt),60,false)
+</code></pre>
+<p>这样，我们就为简陋的晾干架添加了一个配方，名为 "test1"，输出的物品为草方块，放入的物品为泥土，干燥时间为 3 秒。</p>
+<h4>一些拓展</h4>
+<p>1.你可以在同一个脚本添加多个配方，但要注意配方名字不能重复，即使放到不同的 groovy 脚本里也不能重复。</p>
+<p>2.当你添加的合成表较多时，可以通过定义变量来简化你的脚本，但要注意变量名不能和 GlobalUtils.groovy 中的变量名重复，例：</p>
+<pre><code class="groovy"> import groovy.transform.BaseScript  
+import com.codetaylor.mc.pyrotech.modules.tech.basic.plugin.crafttweaker.ZenCrudeDryingRack  
+import com.codetaylor.mc.pyrotech.modules.tech.basic.plugin.crafttweaker.ZenDryingRack 
+import gens.Minecraft
+@BaseScript GlobalUtils _ 
+
+def grass_item = itemStack(Minecraft.grass) //相当于令 grass_item = itemStack(Minecraft.grass)
+def dirt_item = itemStack(Minecraft.dirt)  
+def apple_item = itemStack(Minecraft.apple)  
+def golden_apple_item = itemStack(Minecraft.golden_apple)  
+
+ZenCrudeDryingRack.addRecipe("test2", grass_item,dirt_item,60,false)  
+ZenCrudeDryingRack.addRecipe("test4", grass_item,apple_item,30,true)  
+ZenDryingRack.addRecipe("test3", grass_item,dirt_item,50,true)  
+ZenDryingRack.addRecipe("test5", grass_item,golden_apple_item,20,true)
+
+</code></pre>
+<br></br>
+            <div id="footer" style="background-color:#FFA500;clear:both;text-align:center;">
+            </div>
+            
+            </div>
+        
+    </body>
+</html>
